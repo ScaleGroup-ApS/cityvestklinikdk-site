@@ -10,16 +10,15 @@ import type { ReactNode } from "react";
 import type { Route } from "./+types/root";
 import "./app.css";
 
+const GOOGLE_FONTS_URL =
+  "https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@8..144,100..1000&display=swap";
+
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
     href: "https://fonts.gstatic.com",
     crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@8..144,100..1000&display=swap",
   },
 ];
 
@@ -31,6 +30,80 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {/* Non-render-blocking Google Fonts: inline script runs before React so font applies when loaded */}
+        <link
+          rel="stylesheet"
+          href={GOOGLE_FONTS_URL}
+          media="print"
+          id="google-fonts-link"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var l=document.getElementById("google-fonts-link");l.onload=function(){this.media="all";};if(l.sheet)l.media="all";})();`,
+          }}
+        />
+        <noscript>
+          <link rel="stylesheet" href={GOOGLE_FONTS_URL} />
+        </noscript>
+
+        {/* Google Consent Mode (before Cookiebot and gtag) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag("consent", "default", {
+                ad_user_data: "denied",
+                ad_personalization: "denied",
+                ad_storage: "denied",
+                analytics_storage: "denied",
+                functionality_storage: "denied",
+                personalization_storage: "denied",
+                security_storage: "granted",
+                wait_for_update: 500,
+              });
+              gtag("set", "ads_data_redaction", true);
+              gtag("set", "url_passthrough", true);
+            `.replace(/\n\s+/g, " "),
+          }}
+        />
+        <script
+          type="text/javascript"
+          id="Cookiebot"
+          src="https://consent.cookiebot.com/uc.js"
+          data-cbid="17b1ffa4-6696-4620-b5b5-c59ef6f1a470"
+          data-culture="DA"
+        />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-ES7V2VYL1D" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-ES7V2VYL1D');
+              gtag('config', 'AW-11172242203');
+            `.replace(/\n\s+/g, " "),
+          }}
+        />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11172242203" />
+        {/* Matomo */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              var _paq = window._paq = window._paq || [];
+              _paq.push(['trackPageView']);
+              _paq.push(['enableLinkTracking']);
+              (function() {
+                var u="https://scaleweb.matomo.cloud/";
+                _paq.push(['setTrackerUrl', u+'matomo.php']);
+                _paq.push(['setSiteId', '47']);
+                var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+                g.async=true; g.src='https://cdn.matomo.cloud/scaleweb.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+              })();
+            `.replace(/\n\s+/g, " "),
+          }}
+        />
       </head>
       <body className="min-h-screen bg-surface text-text antialiased">
         {children}
