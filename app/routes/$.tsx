@@ -10,6 +10,8 @@ import { Header } from "~/components/Header";
 import { Footer } from "~/components/Footer";
 import { WpContent } from "~/components/WpContent";
 import { JsonLd } from "~/components/JsonLd";
+import { PatientTestimonials } from "~/components/PatientTestimonials";
+import { getGoogleReviews } from "~/lib/google-places";
 import { getPageBySlug, getSiteInfo } from "~/lib/wp-api";
 import { buildMeta, buildPageJsonLd, getFeaturedImageUrl, stripHtml } from "~/lib/seo";
 import type { WpPage, WpSiteInfo } from "~/lib/wp-types";
@@ -21,16 +23,17 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   const pageSlug = slug.split("/").filter(Boolean).pop() ?? slug;
   const siteUrl = new URL(request.url).origin;
 
-  const [page, siteInfo] = await Promise.all([
+  const [page, siteInfo, googleReviews] = await Promise.all([
     getPageBySlug(pageSlug).catch(() => null),
     getSiteInfo().catch(() => null),
+    getGoogleReviews().catch(() => null),
   ]);
 
   if (!page) {
     throw data(null, { status: 404, statusText: "Side ikke fundet" });
   }
 
-  return { page, siteInfo, siteUrl, slug };
+  return { page, siteInfo, siteUrl, slug, googleReviews };
 }
 
 // ── Meta ─────────────────────────────────────────────────────────────────────
@@ -65,8 +68,8 @@ export function meta({ data }: Route.MetaArgs) {
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function CatchAll({ loaderData }: Route.ComponentProps) {
-  const { page, siteInfo, siteUrl } = loaderData;
-  const siteName = siteInfo?.name ?? "Site";
+  const { page, siteInfo, siteUrl, googleReviews } = loaderData;
+  const siteName = siteInfo?.name ?? "Kirurgisk klinik Brabrand";
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -85,6 +88,7 @@ export default function CatchAll({ loaderData }: Route.ComponentProps) {
           </div>
           <WpContent html={page.content.rendered} />
         </article>
+        <PatientTestimonials googleReviews={googleReviews} />
       </main>
 
       <Footer siteName={siteName} siteDescription={siteInfo?.description} />

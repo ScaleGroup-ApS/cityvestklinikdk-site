@@ -19,7 +19,7 @@ import type {
  * Override via WP_API_URL env var.
  */
 const WP_API_URL: string =
-  process.env.WP_API_URL || "http://wordpress/wp-json";
+  process.env.WP_API_URL || "https://cityvestklinik.dk/wp-json";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
