@@ -8,7 +8,7 @@
 FROM node:20-slim AS deps
 WORKDIR /app
 COPY package.json ./
-RUN npm install npm install
+RUN npm install
 
 # Stage 2: Build
 FROM node:20-slim AS build

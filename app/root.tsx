@@ -8,10 +8,11 @@ import {
 } from "react-router";
 import type { ReactNode } from "react";
 import type { Route } from "./+types/root";
+import { CookieConsent } from "~/components/CookieConsent";
 import "./app.css";
 
 const GOOGLE_FONTS_URL =
-  "https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@8..144,100..1000&display=swap";
+  "https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@8..144,100..1000&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -30,23 +31,23 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        {/* Non-render-blocking Google Fonts: inline script runs before React so font applies when loaded */}
+        <link rel="icon" type="image/png" href="/images/logo_2.png" />
+        {/* Non-render-blocking Google Fonts: preload → swap to stylesheet on load */}
         <link
-          rel="stylesheet"
+          rel="preload"
+          as="style"
           href={GOOGLE_FONTS_URL}
-          media="print"
-          id="google-fonts-link"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var l=document.getElementById("google-fonts-link");l.onload=function(){this.media="all";};if(l.sheet)l.media="all";})();`,
+          onLoad={(e) => {
+            const link = e.currentTarget as HTMLLinkElement;
+            link.onload = null;
+            link.rel = "stylesheet";
           }}
         />
         <noscript>
           <link rel="stylesheet" href={GOOGLE_FONTS_URL} />
         </noscript>
 
-        {/* Google Consent Mode (before Cookiebot and gtag) */}
+        {/* Google Consent Mode v2 default state — everything denied until CookieConsent updates it */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -67,13 +68,6 @@ export function Layout({ children }: { children: ReactNode }) {
             `.replace(/\n\s+/g, " "),
           }}
         />
-        <script
-          type="text/javascript"
-          id="Cookiebot"
-          src="https://consent.cookiebot.com/uc.js"
-          data-cbid="17b1ffa4-6696-4620-b5b5-c59ef6f1a470"
-          data-culture="DA"
-        />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-ES7V2VYL1D" />
         <script
           dangerouslySetInnerHTML={{
@@ -86,27 +80,10 @@ export function Layout({ children }: { children: ReactNode }) {
             `.replace(/\n\s+/g, " "),
           }}
         />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11172242203" />
-        {/* Matomo */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              var _paq = window._paq = window._paq || [];
-              _paq.push(['trackPageView']);
-              _paq.push(['enableLinkTracking']);
-              (function() {
-                var u="https://scaleweb.matomo.cloud/";
-                _paq.push(['setTrackerUrl', u+'matomo.php']);
-                _paq.push(['setSiteId', '47']);
-                var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-                g.async=true; g.src='https://cdn.matomo.cloud/scaleweb.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
-              })();
-            `.replace(/\n\s+/g, " "),
-          }}
-        />
       </head>
       <body className="min-h-screen bg-surface text-text antialiased">
         {children}
+        <CookieConsent />
         <ScrollRestoration />
         <Scripts />
       </body>

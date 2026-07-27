@@ -1,8 +1,5 @@
 /**
- * Homepage Route
- *
- * Hybrid: Custom React sections (Hero, SocialProof, Services, Testimonials)
- * + optional WordPress supplementary content below.
+ * Homepage Route — Kirurgisk klinik Brabrand (Cityvest Klinik).
  */
 import type { Route } from "./+types/index";
 import { Header } from "~/components/Header";
@@ -11,62 +8,39 @@ import { JsonLd } from "~/components/JsonLd";
 import { HeroSection } from "~/components/home/HeroSection";
 import { SocialProof } from "~/components/home/SocialProof";
 import { ServicesSection } from "~/components/home/ServicesSection";
-import { Testimonials } from "~/components/home/Testimonials";
-import { AboutClinicSection } from "~/components/home/AboutClinicSection";
-import { getGoogleReviews } from "~/lib/google-places";
-import { getFrontPage, getSiteInfo } from "~/lib/wp-api";
-import {
-  buildMeta,
-  buildWebsiteJsonLd,
-  buildPageJsonLd,
-  getFeaturedImageUrl,
-  stripHtml,
-} from "~/lib/seo";
-import type { WpPage, WpSiteInfo } from "~/lib/wp-types";
+import { ProcessTimeline } from "~/components/home/ProcessTimeline";
+import { ReviewsSlider } from "~/components/ReviewsSlider";
+import { FaqTeaser } from "~/components/home/FaqTeaser";
+import { CtaBand } from "~/components/home/CtaBand";
+import { buildMeta, buildWebsiteJsonLd } from "~/lib/seo";
+
+const SITE_NAME = "Kirurgisk klinik Brabrand";
 
 // ── Loader ───────────────────────────────────────────────────────────────────
 
 export async function loader({ request }: Route.LoaderArgs) {
   const siteUrl = new URL(request.url).origin;
-
-  let page: WpPage | null = null;
-  let siteInfo: WpSiteInfo | null = null;
-
-  let googleReviews: Awaited<ReturnType<typeof getGoogleReviews>> = null;
-  try {
-    [page, siteInfo, googleReviews] = await Promise.all([
-      getFrontPage().catch(() => null),
-      getSiteInfo().catch(() => null),
-      getGoogleReviews().catch(() => null),
-    ]);
-  } catch {
-    // graceful degradation — custom sections always render
-  }
-
-  return { page, siteInfo, siteUrl, googleReviews };
+  return { siteUrl };
 }
 
 // ── Meta ─────────────────────────────────────────────────────────────────────
 
-export function meta({ data }: Route.MetaArgs) {
-  if (!data) return [{ title: "Kirurgisk klinik Brabrand" }];
+export function meta({ loaderData }: Route.MetaArgs) {
+  if (!loaderData)
+    return [{ title: "Kirurgisk klinik Brabrand | Professionel omskæring" }];
 
-  const { siteInfo, page, siteUrl } = data;
-  const siteName = siteInfo?.name ?? "Kirurgisk klinik Brabrand";
-  const description = page?.excerpt?.rendered
-    ? stripHtml(page.excerpt.rendered)
-    : siteInfo?.description ??
-      "Professionel omskæring af drengebørn i Brabrand. Autoriseret speciallægeklinik i City Vest ved Aarhus.";
+  const { siteUrl } = loaderData;
+  const description =
+    "Professionel omskæring af drengebørn i trygge rammer. Vi er autoriserede speciallæger med mange års erfaring og ligger i City Vest i Brabrand ved Aarhus.";
 
   return [
     ...buildMeta({
-      title: siteName,
+      title: "Kirurgisk klinik Brabrand | Professionel omskæring",
       description,
       url: siteUrl,
-      siteName,
+      siteName: SITE_NAME,
       siteUrl,
       type: "website",
-      image: page ? getFeaturedImageUrl(page) : undefined,
       locale: "da_DK",
     }),
     { tagName: "link", rel: "canonical", href: siteUrl },
@@ -76,26 +50,26 @@ export function meta({ data }: Route.MetaArgs) {
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function Index({ loaderData }: Route.ComponentProps) {
-  const { page, siteInfo, siteUrl, googleReviews } = loaderData;
-  const siteName = siteInfo?.name ?? "Kirurgisk klinik Brabrand";
+  const { siteUrl } = loaderData;
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header siteName={siteName} lightBg />
+      <Header siteName={SITE_NAME} lightBg />
 
       {/* Structured Data */}
-      <JsonLd data={buildWebsiteJsonLd(siteInfo, siteUrl)} />
-      {page && <JsonLd data={buildPageJsonLd({ page, siteInfo, siteUrl })} />}
+      <JsonLd data={buildWebsiteJsonLd(siteUrl)} />
 
       <main className="flex-1">
         <HeroSection />
         <SocialProof />
         <ServicesSection />
-        <Testimonials googleReviews={googleReviews} />
-        <AboutClinicSection />
+        <ProcessTimeline />
+        <ReviewsSlider />
+        <FaqTeaser />
+        <CtaBand />
       </main>
 
-      <Footer siteName={siteName} siteDescription={siteInfo?.description} />
+      <Footer siteName={SITE_NAME} />
     </div>
   );
 }

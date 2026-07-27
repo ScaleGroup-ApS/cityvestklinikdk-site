@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface HeaderProps {
   siteName?: string;
@@ -10,141 +10,170 @@ interface HeaderProps {
   }>;
 }
 
-export function Header({ siteName = "Kirurgisk klinik Brabrand", menuItems = [], lightBg = false }: HeaderProps) {
+export function Header({
+  siteName = "Kirurgisk klinik Brabrand",
+  menuItems = [],
+  lightBg = false,
+}: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [logoError, setLogoError] = useState(false);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const navItems =
+    menuItems.length > 0
+      ? menuItems
+      : [
+          {
+            title: "Omskæring",
+            url: "/om-omskaering",
+            children: [
+              { title: "Om omskæring", url: "/om-omskaering" },
+              { title: "Ringmetoden", url: "/omskaering-med-ringmetoden" },
+              { title: "Klassisk metode", url: "/omskaering-ved-klassisk-metode" },
+              { title: "Forberedelse", url: "/forberedelse-foer-indgrebet" },
+            ],
+          },
+          { title: "Om os", url: "/om-os" },
+          { title: "FAQ", url: "/faq" },
+          { title: "Priser", url: "/priser" },
+          { title: "Find os", url: "/find-os" },
+          { title: "Kontakt", url: "/kontakt" },
+        ];
 
-  const navItems = menuItems.length > 0 ? menuItems : [
-    { title: "Priser", url: "/priser" },
-    {
-      title: "Omskæring",
-      url: "/omskaering",
-      children: [
-        { title: "Forberedelse før indgrebet", url: "/forberedelse-inden-omskaering" },
-        { title: "Om omskæring", url: "/omskaering" },
-        { title: "Klassisk metode", url: "/omskaering-med-klassisk-metode" },
-        { title: "Ringmetoden", url: "/omskaering-med-ringmetoden" },
-      ],
-    },
-    {
-      title: "Om os",
-      url: "/om-os",
-      children: [
-        { title: "FAQ", url: "/faq" },
-        { title: "Find os", url: "/kontakt-os" },
-        { title: "Priser", url: "/priser" },
-      ],
-    },
-    { title: "Booking", url: "/booking" },
-    { title: "Kontakt", url: "/kontakt-os" },
-  ];
+  const solid = true;
 
   return (
     <header
-      className={[
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        scrolled || lightBg
-          ? "bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-sm"
-          : "bg-transparent",
-      ].join(" ")}
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-white border-b border-[color:var(--color-border)]"
     >
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      {/* Announcement bar */}
+      <div
+        className={[
+          "transition-colors duration-500",
+          solid ? "bg-[color:var(--color-ink)] text-white" : "bg-black/20 text-white",
+        ].join(" ")}
+      >
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10 h-9 flex items-center justify-center">
+          <a
+            href="https://specialklinik.dk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="animated-link text-[12px] font-medium tracking-[0.02em] text-center"
+          >
+            Besøg også vores klinik i Taastrup →
+          </a>
+        </div>
+      </div>
+
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 h-20 flex items-center justify-between gap-3 sm:gap-6">
         {/* Logo */}
-        <a href="/" className="inline-flex items-center font-heading text-xl md:text-2xl font-bold text-secondary tracking-tight hover:opacity-90 transition-opacity">
-          {logoError ? (
-            siteName
-          ) : (
-            <img
-              src="/images/logo_2.png"
-              alt={siteName}
-              className="h-10 md:h-12 w-auto object-contain"
-              onError={() => setLogoError(true)}
-            />
-          )}
+        <a href="/" className="inline-flex items-center gap-3 shrink-0 group min-w-0">
+          <img
+            src="/images/logo_2.png"
+            alt={siteName}
+            className="h-11 sm:h-12 lg:h-14 w-auto object-contain transition-opacity duration-300"
+          />
         </a>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
+        {/* Desktop nav */}
+        <nav className="hidden lg:flex items-center gap-9">
           {navItems.map((item) => (
             <NavLink
               key={item.url}
               href={item.url}
               label={item.title}
               childrenItems={item.children}
-              scrolled={scrolled || lightBg}
+              solid={solid}
             />
           ))}
         </nav>
 
-        {/* CTA Button */}
-        <div className="hidden md:block">
-          <a
-            href="/booking"
-            className="btn-gradient text-sm"
-            style={{ padding: "0.625rem 1.5rem", borderRadius: "0.5rem" }}
-          >
-            Book tid online
+        {/* Right cluster */}
+        <div className="hidden lg:flex items-center gap-3">
+          <a href="/booking" className="btn-gradient" style={{ padding: "0.65rem 1.3rem" }}>
+            Book tid
+            <span className="btn-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </span>
           </a>
         </div>
 
-        {/* Mobile Hamburger */}
+        {/* Mobile trigger */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className={[
-            "md:hidden p-2 rounded-lg transition-colors",
-            scrolled || lightBg ? "hover:bg-slate-100" : "hover:bg-white/10",
+            "lg:hidden shrink-0 inline-flex items-center gap-2 px-2 py-2 sm:px-3 rounded-full border transition-all duration-300",
+            solid
+              ? "border-[color:var(--color-border)] text-[color:var(--color-ink)]"
+              : "border-white/40 text-white",
           ].join(" ")}
-          aria-label="Åbn menu"
+          aria-label={mobileOpen ? "Luk menu" : "Åbn menu"}
+          aria-expanded={mobileOpen}
         >
-          <svg
-            className={["w-6 h-6 transition-colors", scrolled || lightBg ? "text-secondary" : "text-white"].join(" ")}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            {mobileOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
+          <span className="flex flex-col gap-[5px] w-4">
+            <span
+              className={
+                "block h-px bg-current transition-all duration-300 " +
+                (mobileOpen ? "translate-y-[6px] rotate-45" : "")
+              }
+            />
+            <span
+              className={
+                "block h-px bg-current transition-all duration-300 " +
+                (mobileOpen ? "opacity-0" : "opacity-100")
+              }
+            />
+            <span
+              className={
+                "block h-px bg-current transition-all duration-300 " +
+                (mobileOpen ? "-translate-y-[6px] -rotate-45" : "")
+              }
+            />
+          </span>
+          <span className="hidden sm:inline text-[11px] uppercase tracking-[0.24em]">{mobileOpen ? "Luk" : "Menu"}</span>
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden bg-white/98 backdrop-blur-xl border-t border-slate-200 shadow-xl">
-          <nav className="max-w-7xl mx-auto px-6 py-5 space-y-1">
-            {navItems.map((item) => (
-              <MobileNavLink
-                key={item.url}
-                href={item.url}
-                label={item.title}
-                childrenItems={item.children}
-                onClick={() => setMobileOpen(false)}
-              />
-            ))}
-            <div className="pt-3 border-t border-slate-100 mt-3">
-              <a
-                href="/booking"
-                onClick={() => setMobileOpen(false)}
-                className="btn-gradient w-full justify-center"
-                style={{ borderRadius: "0.5rem" }}
-              >
-                Book tid online
-              </a>
-            </div>
-          </nav>
-        </div>
-      )}
+      {/* Mobile menu */}
+      <div
+        className={[
+          "lg:hidden overflow-hidden bg-white/98 backdrop-blur-xl border-t border-[color:var(--color-border)] transition-[max-height,opacity] duration-500 ease-out",
+          mobileOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0",
+        ].join(" ")}
+      >
+        <nav className="max-w-[1400px] mx-auto px-6 lg:px-10 py-6 space-y-1">
+          {navItems.map((item) => (
+            <MobileNavLink
+              key={item.url}
+              href={item.url}
+              label={item.title}
+              childrenItems={item.children}
+              onClick={() => setMobileOpen(false)}
+            />
+          ))}
+          <div className="pt-5 mt-3 border-t border-[color:var(--color-border)] flex flex-col gap-2">
+            <a
+              href="/booking"
+              onClick={() => setMobileOpen(false)}
+              className="btn-gradient w-full"
+            >
+              Book tid
+              <span className="btn-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </span>
+            </a>
+            <a
+              href="/kontakt"
+              onClick={() => setMobileOpen(false)}
+              className="btn-outline w-full"
+            >
+              Kontakt klinikken
+            </a>
+          </div>
+        </nav>
+      </div>
     </header>
   );
 }
@@ -153,83 +182,67 @@ function NavLink({
   href,
   label,
   childrenItems,
-  scrolled,
+  solid,
 }: {
   href: string;
   label: string;
   childrenItems?: Array<{ title: string; url: string }>;
-  scrolled: boolean;
+  solid: boolean;
 }) {
   const to = href.startsWith("http") ? new URL(href).pathname : href;
   const hasChildren = !!childrenItems?.length;
-  const isOmskaeringMenu = label === "Omskæring" && hasChildren;
 
   return (
     <div className="relative group">
       <a
         href={to}
         className={[
-          "animated-link text-sm font-medium transition-colors duration-200 inline-flex items-center gap-1",
-          scrolled ? "text-slate-600 hover:text-secondary" : "text-white/80 hover:text-white",
+          "animated-link text-[13px] font-medium uppercase tracking-[0.18em] transition-colors duration-300 inline-flex items-center gap-1.5",
+          solid
+            ? "text-[color:var(--color-ink)] hover:text-[color:var(--color-primary-dark)]"
+            : "text-white/90 hover:text-white",
         ].join(" ")}
       >
         {label}
         {hasChildren && (
-          <svg className="w-3.5 h-3.5 mt-px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            className="w-3 h-3 transition-transform group-hover:rotate-180"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         )}
       </a>
 
       {hasChildren && (
-        <div className="absolute left-0 top-full pt-3 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200">
+        <div className="absolute left-0 top-full pt-4 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300">
           <div
-            className={[
-              "rounded-xl border border-slate-200 bg-white shadow-xl",
-              isOmskaeringMenu
-                ? "w-[min(520px,calc(100vw-2rem))] p-4"
-                : "min-w-[220px] max-w-[min(280px,calc(100vw-2rem))] p-2",
-            ].join(" ")}
+            className="min-w-[320px] rounded-2xl border border-[color:var(--color-border)] bg-white shadow-[0_30px_60px_-30px_rgba(11,16,32,0.3)] p-2"
           >
-            {isOmskaeringMenu ? (
-              <div className="grid grid-cols-2 gap-2">
-                {childrenItems!.map((item) => {
-                  const childTo = item.url.startsWith("http") ? new URL(item.url).pathname : item.url;
-                  return (
-                    <a
-                      key={item.url}
-                      href={childTo}
-                      className="block rounded-lg border border-slate-100 px-3 py-2.5 hover:bg-slate-50 hover:border-slate-200 transition-colors"
-                    >
-                      <p className="text-[13px] font-semibold text-secondary">{item.title}</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">
-                        Læs mere om behandling og forløb.
-                      </p>
-                    </a>
-                  );
-                })}
+            {childrenItems!.map((item) => {
+              const childTo = item.url.startsWith("http")
+                ? new URL(item.url).pathname
+                : item.url;
+              return (
                 <a
-                  href="/booking"
-                  className="col-span-2 mt-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors text-center"
-                  style={{ background: "#697DA8" }}
+                  key={item.url}
+                  href={childTo}
+                  className="flex items-center justify-between px-4 py-3 rounded-xl text-[14px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-surface-dim)] transition-colors"
                 >
-                  Book tid online
-                </a>
-              </div>
-            ) : (
-              childrenItems!.map((item) => {
-                const childTo = item.url.startsWith("http") ? new URL(item.url).pathname : item.url;
-                return (
-                  <a
-                    key={item.url}
-                    href={childTo}
-                    className="block px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50 hover:text-secondary transition-colors"
+                  <span>{item.title}</span>
+                  <svg
+                    className="w-3.5 h-3.5 text-[color:var(--color-text-muted)]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
                   >
-                    {item.title}
-                  </a>
-                );
-              })
-            )}
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </a>
+              );
+            })}
           </div>
         </div>
       )}
@@ -250,29 +263,51 @@ function MobileNavLink({
 }) {
   const to = href.startsWith("http") ? new URL(href).pathname : href;
   const hasChildren = !!childrenItems?.length;
+  const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="rounded-xl border border-slate-100">
-      <a
-        href={to}
-        onClick={onClick}
-        className="block px-4 py-3 text-secondary hover:bg-slate-50 rounded-t-xl transition-colors font-medium text-[15px]"
-      >
-        {label}
-      </a>
-      {hasChildren && (
-        <div className="pb-2">
+    <div className="border-b border-[color:var(--color-border)] last:border-b-0">
+      <div className="flex items-center">
+        <a
+          href={to}
+          onClick={onClick}
+          className="flex-1 block py-4 font-display text-xl text-[color:var(--color-ink)]"
+        >
+          {label}
+        </a>
+        {hasChildren && (
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            aria-label="Åbn undermenu"
+            className="p-2"
+          >
+            <svg
+              className={
+                "w-4 h-4 transition-transform duration-300 " +
+                (expanded ? "rotate-180" : "")
+              }
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        )}
+      </div>
+      {hasChildren && expanded && (
+        <div className="pl-2 pb-3 space-y-1">
           {childrenItems!.map((item) => {
-            const childTo = item.url.startsWith("http") ? new URL(item.url).pathname : item.url;
-            const icon = getMobileSubmenuIcon(item.title);
+            const childTo = item.url.startsWith("http")
+              ? new URL(item.url).pathname
+              : item.url;
             return (
               <a
                 key={item.url}
                 href={childTo}
                 onClick={onClick}
-                className="flex items-center gap-2 px-6 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                className="block px-3 py-2 rounded-lg text-[14px] text-[color:var(--color-text-muted)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-surface-dim)] transition-colors"
               >
-                <span className="text-primary">{icon}</span>
                 {item.title}
               </a>
             );
@@ -280,47 +315,5 @@ function MobileNavLink({
         </div>
       )}
     </div>
-  );
-}
-
-function getMobileSubmenuIcon(title: string) {
-  const baseClass = "w-4 h-4";
-
-  if (title.includes("Forberedelse")) {
-    return (
-      <svg className={baseClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    );
-  }
-
-  if (title.includes("Ring")) {
-    return (
-      <svg className={baseClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="7" strokeWidth={1.8} />
-      </svg>
-    );
-  }
-
-  if (title.includes("bedøvelse")) {
-    return (
-      <svg className={baseClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19.428 15.428a4 4 0 00-5.656 0l-7.07 7.07a2 2 0 01-2.829-2.828l7.071-7.071a4 4 0 000-5.657m8.484 8.486l-8.486-8.486" />
-      </svg>
-    );
-  }
-
-  if (title.includes("Klassisk")) {
-    return (
-      <svg className={baseClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2-9H7m12 12H5a2 2 0 01-2-2V7a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2z" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg className={baseClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 7h16M4 12h16M4 17h16" />
-    </svg>
   );
 }
