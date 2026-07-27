@@ -3,8 +3,6 @@
 // Generates meta tags, Open Graph, JSON-LD structured data, and canonical URLs.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { WpPage, WpPost, WpSiteInfo } from "./wp-types";
-
 interface SeoOptions {
   title: string;
   description?: string;
@@ -75,98 +73,84 @@ export function buildMeta(opts: SeoOptions) {
     }
   }
 
-  // Robots
+  // Robots — noindex,follow (not nofollow) so link equity still flows
+  // through pages like the booking confirmation screen.
   if (opts.noindex) {
-    meta.push({ name: "robots", content: "noindex, nofollow" });
+    meta.push({ name: "robots", content: "noindex, follow" });
   }
 
   return meta;
 }
 
 /**
- * Generate JSON-LD structured data for a page.
+ * Generate MedicalClinic JSON-LD (site-wide entity/NAP data).
+ * Used on every page so Google, the Knowledge Graph, and AI answer
+ * engines (AI Overviews, Perplexity, ChatGPT search) can resolve a
+ * single, consistent entity for the clinic.
  */
-export function buildPageJsonLd(opts: {
-  page: WpPage | WpPost;
-  siteInfo?: WpSiteInfo | null;
-  siteUrl: string;
-  type?: "WebPage" | "Article" | "BlogPosting";
-}) {
-  const { page, siteInfo, siteUrl, type = "WebPage" } = opts;
-
-  const jsonLd: Record<string, unknown> = {
-    "@context": "https://schema.org",
-    "@type": type,
-    name: stripHtml(page.title.rendered),
-    headline: stripHtml(page.title.rendered),
-    url: `${siteUrl}/${page.slug}`,
-    datePublished: page.date_gmt,
-    dateModified: page.modified_gmt,
-  };
-
-  if (page.excerpt?.rendered) {
-    jsonLd.description = stripHtml(page.excerpt.rendered);
-  }
-
-  // Featured image
-  const media = page._embedded?.["wp:featuredmedia"]?.[0];
-  if (media) {
-    jsonLd.image = {
-      "@type": "ImageObject",
-      url: media.source_url,
-      width: media.media_details?.width,
-      height: media.media_details?.height,
-    };
-  }
-
-  if (siteInfo) {
-    jsonLd.publisher = {
-      "@type": "Organization",
-      name: siteInfo.name,
-      url: siteUrl,
-    };
-  }
-
-  // BreadcrumbList
-  jsonLd.mainEntity = {
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Forside",
-        item: siteUrl,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: stripHtml(page.title.rendered),
-        item: `${siteUrl}/${page.slug}`,
-      },
-    ],
-  };
-
-  return jsonLd;
-}
-
-/**
- * Generate WebSite JSON-LD (for the homepage).
- */
-export function buildWebsiteJsonLd(siteInfo: WpSiteInfo | null, siteUrl: string) {
+export function buildWebsiteJsonLd(siteUrl: string) {
   return {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: siteInfo?.name ?? "Website",
-    description: siteInfo?.description ?? "",
+    "@type": "MedicalClinic",
+    "@id": `${siteUrl}/#organization`,
+    name: "Kirurgisk klinik Brabrand",
+    alternateName: "Cityvest Klinik",
+    description:
+      "Professionel omskæring af drengebørn i trygge rammer. Autoriserede speciallæger i City Vest, Brabrand ved Aarhus.",
     url: siteUrl,
+    telephone: "+4520763516",
+    email: "info@cityvestklinik.dk",
+    priceRange: "kr.",
+    medicalSpecialty: "Surgical",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Gudrunsvej 7",
+      postalCode: "8220",
+      addressLocality: "Brabrand",
+      addressCountry: "DK",
+    },
+    areaServed: "DK",
+    availableService: {
+      "@type": "MedicalProcedure",
+      name: "Rituel drengeomskæring",
+      procedureType: "https://schema.org/PercutaneousProcedure",
+    },
   };
 }
 
 /**
- * Extract the featured image URL from a WP page/post with _embed.
+ * Generate FAQPage JSON-LD for a set of question/answer pairs.
+ * FAQPage markup is heavily used by AI Overviews and answer engines to
+ * source direct answers, in addition to classic rich-result snippets.
  */
-export function getFeaturedImageUrl(page: WpPage | WpPost): string | undefined {
-  return page._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
+export function buildFaqJsonLd(
+  items: Array<{
+    q: string;
+    a?: string;
+    blocks?: Array<{ type: "p" | "ul"; text?: string; items?: string[] }>;
+  }>,
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a ?? flattenFaqBlocks(item.blocks ?? []),
+      },
+    })),
+  };
+}
+
+function flattenFaqBlocks(
+  blocks: Array<{ type: "p" | "ul"; text?: string; items?: string[] }>,
+): string {
+  return blocks
+    .map((block) => (block.type === "ul" ? (block.items ?? []).join(" ") : block.text))
+    .filter(Boolean)
+    .join(" ");
 }
 
 /** Strip HTML tags from a string (for use in meta descriptions). */

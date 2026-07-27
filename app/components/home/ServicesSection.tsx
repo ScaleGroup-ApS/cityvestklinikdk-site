@@ -1,117 +1,167 @@
 // app/components/home/ServicesSection.tsx
 import { motion } from "framer-motion";
 import { Link } from "react-router";
+import { AnimatedWords } from "~/components/motion/AnimatedWords";
+import { HandDrawnUnderline } from "~/components/motion/HandDrawnUnderline";
 
-const SERVICES = [
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+type Method = {
+  index: string;
+  title: string;
+  tagline: string;
+  description: string;
+  age: string;
+  ageLabel: string;
+  href: string;
+};
+
+const METHODS: Method[] = [
   {
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-      </svg>
-    ),
-    title: "Om omskæring",
-    description:
-      "Læs om proceduren, sikkerheden og vores tilgang til rituel omskæring af drengebørn.",
-    href: "/omskaering",
-  },
-  {
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-      </svg>
-    ),
-    title: "Forberedelse før indgrebet",
-    description:
-      "En praktisk guide til, hvad I skal være opmærksomme på inden jeres aftale i klinikken.",
-    href: "/forberedelse-inden-omskaering",
-  },
-  {
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-    title: "Klassisk metode",
-    description:
-      "Vi anvender som udgangspunkt klassisk metode til børn over et år.",
-    href: "/omskaering-med-klassisk-metode",
-  },
-  {
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
+    index: "01",
     title: "Ringmetoden",
+    tagline: "Skånsom til nyfødte og spædbørn",
     description:
-      "Vi anvender ofte ringmetoden til børn under et år og rådgiver om det rette valg.",
+      "Circumplast® anvendes til de mindste børn. En særligt skånsom, sutur-fri metode der giver forudsigelig heling og minimal efterbehandling.",
+    age: "0–24 mdr.",
+    ageLabel: "Alder",
     href: "/omskaering-med-ringmetoden",
+  },
+  {
+    index: "02",
+    title: "Klassisk metode",
+    tagline: "Erfaren, præcis, velafprøvet",
+    description:
+      "Vores foretrukne tilgang til større børn. Indgrebet udføres skånsomt i lokalbedøvelse med fokus på præcision og et roligt forløb.",
+    age: "6–11 år",
+    ageLabel: "Alder",
+    href: "/omskaering-ved-klassisk-metode",
+  },
+  {
+    index: "03",
+    title: "Om omskæring",
+    tagline: "Metoder, forløb og fuld bedøvelse",
+    description:
+      "Et overblik over omskæring af drengebørn — metoder, alder og forløb. For større børn tilbyder vi også omskæring i fuld bedøvelse i trygge rammer.",
+    age: "Overblik",
+    ageLabel: "Guide",
+    href: "/om-omskaering",
+  },
+  {
+    index: "04",
+    title: "Forberedelse",
+    tagline: "Før I møder op",
+    description:
+      "En praktisk guide med alt det, I som forældre skal være opmærksomme på inden aftalen — så dagen bliver så rolig som mulig for jer og barnet.",
+    age: "For forældre",
+    ageLabel: "Guide",
+    href: "/forberedelse-foer-indgrebet",
   },
 ];
 
 export function ServicesSection() {
   return (
-    <section className="section-block relative overflow-hidden">
-      {/* Subtle gradient background (primary tint) */}
-      <div className="absolute inset-0 bg-surface" aria-hidden />
-      <div
-        className="absolute top-[10%] left-[5%] w-72 md:w-96 h-72 md:h-96 rounded-full animate-blob opacity-40"
-        style={{
-          background: "radial-gradient(circle, rgba(105,125,168,0.12) 0%, transparent 70%)",
-          filter: "blur(60px)",
-        }}
-      />
-      <div
-        className="absolute bottom-[10%] right-[5%] w-64 md:w-80 h-64 md:h-80 rounded-full animate-blob-2 opacity-40"
-        style={{
-          background: "radial-gradient(circle, rgba(105,125,168,0.1) 0%, transparent 70%)",
-          filter: "blur(50px)",
-        }}
-      />
+    <section
+      id="metoder"
+      className="relative overflow-hidden"
+      style={{ background: "var(--color-surface-dim)" }}
+    >
+      <div aria-hidden className="absolute inset-0 grain pointer-events-none" />
 
-      <div className="section-inner relative">
-        <motion.header
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="section-header max-w-2xl mb-10 md:mb-12"
-        >
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-3">
-            Operationsteknik
-          </p>
-          <h2 className="font-heading text-2xl md:text-4xl font-medium text-secondary leading-tight" style={{ fontFamily: "var(--font-heading)" }}>
-            Metoder med fokus på{" "}
-            <span className="gradient-text">tryghed og kvalitet</span>
-          </h2>
-        </motion.header>
+      <div className="relative max-w-[1400px] mx-auto px-6 lg:px-10 py-24 md:py-32">
+        {/* Section header */}
+        <div className="grid lg:grid-cols-12 gap-10 mb-16 md:mb-20 items-end">
+          <div className="lg:col-span-7">
+            <h2 className="display-xl text-[color:var(--color-ink)]">
+              <AnimatedWords
+                as="span"
+                mode="inView"
+                text="Valget af metode"
+                className="block"
+              />{" "}
+              <span className="relative inline-block">
+                <span className="font-display italic font-light">
+                  tilpasses jeres barn.
+                </span>
+                <HandDrawnUnderline
+                  className="absolute left-0 right-0 -bottom-1 w-full h-3"
+                  delay={0.7}
+                  variant="scribble"
+                />
+              </span>
+            </h2>
+          </div>
+          <div className="lg:col-span-4 lg:col-start-9">
+            <p className="text-[15px] leading-[1.8] text-[color:var(--color-text-muted)]">
+              Vi anvender de metoder, som er bedst dokumenteret og mest skånsomme
+              i den pågældende aldersgruppe — og vi rådgiver jer om det rette
+              valg i en ærlig, afklarende samtale.
+            </p>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-          {SERVICES.map((service, i) => (
+        {/* Editorial 2×2 grid with hairline rule */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[color:var(--color-border)] rounded-[1.5rem] overflow-hidden border border-[color:var(--color-border)]">
+          {METHODS.map((m, i) => (
             <motion.div
-              key={service.title}
-              initial={{ opacity: 0, y: 16 }}
+              key={m.title}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "0px 0px -30px 0px" }}
-              transition={{ duration: 0.4, delay: i * 0.07 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.8, ease: EASE, delay: i * 0.08 }}
+              className="bg-white"
             >
-              <Link to={service.href} className="block h-full group">
-                <div className="glass-card card-hover p-5 md:p-6 h-full rounded-xl transition-shadow duration-300 group-hover:shadow-[0_12px_40px_rgba(105,125,168,0.15)]">
-                  <div className="text-primary mb-4">{service.icon}</div>
-                  <h3 className="font-heading text-lg md:text-xl font-semibold text-secondary mb-2 leading-snug" style={{ fontFamily: "var(--font-heading)" }}>
-                    {service.title}
+              <Link
+                to={m.href}
+                className="group block h-full p-8 md:p-10 relative overflow-hidden"
+              >
+                {/* Hover fill */}
+                <span
+                  aria-hidden
+                  className="absolute inset-0 bg-[color:var(--color-ink)] translate-y-full group-hover:translate-y-0 transition-transform duration-[650ms]"
+                  style={{ transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)" }}
+                />
+
+                <div className="relative">
+                  <div className="flex items-start justify-between mb-10 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--color-text-muted)] group-hover:text-[color:var(--color-text-on-dark-muted)] transition-colors duration-500">
+                        {m.ageLabel}
+                      </span>
+                      <span className="font-display text-[2rem] md:text-[2.4rem] leading-[1.05] font-light text-[color:var(--color-ink)] group-hover:text-[color:var(--color-accent-warm-soft)] transition-colors duration-500">
+                        {m.age}
+                      </span>
+                    </div>
+                    <span className="number-roll text-[11px] uppercase tracking-[0.28em] text-[color:var(--color-text-muted)] group-hover:text-[color:var(--color-text-on-dark-muted)] transition-colors duration-500">
+                      <span>→</span>
+                    </span>
+                  </div>
+
+                  <h3 className="display-lg text-[color:var(--color-ink)] group-hover:text-white transition-colors duration-500 mb-3">
+                    {m.title}
                   </h3>
-                  <p className="text-text-muted text-sm md:text-base leading-relaxed mb-4">
-                    {service.description}
+                  <p className="font-display italic text-[color:var(--color-primary-dark)] group-hover:text-[color:var(--color-accent-warm-soft)] text-lg mb-6 transition-colors duration-500">
+                    {m.tagline}
                   </p>
-                  <span className="inline-flex items-center gap-1.5 text-primary text-sm font-semibold">
+                  <p className="text-[15px] leading-[1.8] text-[color:var(--color-text-muted)] group-hover:text-[color:var(--color-text-on-dark-muted)] max-w-prose transition-colors duration-500">
+                    {m.description}
+                  </p>
+
+                  <span className="mt-10 inline-flex items-center gap-3 text-sm font-semibold text-[color:var(--color-ink)] group-hover:text-white transition-colors duration-500">
                     Læs mere
-                    <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    <span className="w-10 h-px bg-current" />
+                    <svg
+                      className="w-4 h-4 transition-transform duration-500 group-hover:translate-x-1"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.6}
+                        d="M5 12h14M13 6l6 6-6 6"
+                      />
                     </svg>
                   </span>
                 </div>

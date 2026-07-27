@@ -1,32 +1,49 @@
 import type { Route } from "./+types/booking";
+import { motion } from "framer-motion";
+import { Link } from "react-router";
 import { Header } from "~/components/Header";
 import { Footer } from "~/components/Footer";
 import { JsonLd } from "~/components/JsonLd";
-import { PatientTestimonials } from "~/components/PatientTestimonials";
-import { getSiteInfo } from "~/lib/wp-api";
+import { ReviewsSlider } from "~/components/ReviewsSlider";
+import { CtaBand } from "~/components/home/CtaBand";
+import { SubpageHero } from "~/components/shared/SubpageHero";
+import { ContentSection } from "~/components/shared/ContentSection";
+import { AnimatedWords } from "~/components/motion/AnimatedWords";
+import { HandDrawnUnderline } from "~/components/motion/HandDrawnUnderline";
 import { buildMeta, buildWebsiteJsonLd } from "~/lib/seo";
-import type { WpSiteInfo } from "~/lib/wp-types";
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+const INFO_CARDS = [
+  {
+    title: "Drenge over 10 år",
+    body: "Omskæring af drenge over 10 år eller voksenomskæring kræver kontakt til klinikken inden tidsbestilling.",
+  },
+  {
+    title: "Læs forberedelse først",
+    body: "Før I bestiller tid, anbefaler vi, at I læser afsnittene om forberedelse inden indgrebet og information om drengeomskæring.",
+    link: { to: "/forberedelse-foer-indgrebet", label: "Læs forberedelse" },
+  },
+  {
+    title: "Afbestilling",
+    body: "Hvis I ikke kan komme, beder vi jer afbestille så tidligt som muligt i bookingmodulet eller skrive til info@cityvestklinik.dk.",
+  },
+];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const siteUrl = new URL(request.url).origin;
-  let siteInfo: WpSiteInfo | null = null;
-  try {
-    siteInfo = await getSiteInfo().catch(() => null);
-  } catch {
-    // graceful degradation
-  }
-  return { siteInfo, siteUrl };
+  return { siteUrl };
 }
 
-export function meta({ data }: Route.MetaArgs) {
-  if (!data) return [{ title: "Booking | Specialklinik Taastrup" }];
-  const { siteInfo, siteUrl } = data;
-  const siteName = siteInfo?.name ?? "Specialklinik Taastrup";
+export function meta({ loaderData }: Route.MetaArgs) {
+  if (!loaderData) return [{ title: "Book tid til omskæring hos Kirurgisk klinik Brabrand" }];
+  const { siteUrl } = loaderData;
+  const siteName = "Kirurgisk klinik Brabrand";
   return [
     ...buildMeta({
-      title: `Booking | ${siteName}`,
+      title: `Book tid til omskæring hos ${siteName}`,
       description:
-        "Book tid online til omskæring. Læs forberedelse og praktisk information før tidsbestilling.",
+        "Book en tid til en professionel omskæringsprocedure hos Kirurgisk klinik Brabrand. Vi tilbyder vores patienter en sikker og effektiv behandling, udført af erfarne læger og sundhedsprofessionelle. Kontakt os i dag for at bestille en tid og få svar på eventuelle spørgsmål, du måtte have om proceduren og dens fordele. Vi glæder os til at høre fra dig!",
       url: `${siteUrl}/booking`,
       siteName,
       siteUrl,
@@ -38,79 +55,146 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function Booking({ loaderData }: Route.ComponentProps) {
-  const { siteInfo, siteUrl } = loaderData;
-  const siteName = siteInfo?.name ?? "Specialklinik Taastrup";
+  const { siteUrl } = loaderData;
+  const siteName = "Kirurgisk klinik Brabrand";
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header siteName={siteName} lightBg />
-      <JsonLd data={buildWebsiteJsonLd(siteInfo, siteUrl)} />
-      <main className="flex-1 pt-28 pb-20">
-        <article className="max-w-4xl mx-auto px-6">
-          <h1 className="font-heading text-4xl md:text-5xl font-medium text-secondary mb-6">
-            Booking
-          </h1>
-          <h2 className="font-heading text-2xl text-secondary mb-4">
-            Book tid online til omskæring
-          </h2>
+      <JsonLd data={buildWebsiteJsonLd(siteUrl)} />
 
-          <figure className="mb-8 overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-white">
+      <main className="flex-1">
+        <SubpageHero
+          eyebrow="Booking · Online tidsbestilling"
+          headline={
+            <>
+              <AnimatedWords
+                as="span"
+                text="Book en"
+                className="block"
+                delay={0.1}
+              />
+              <span className="relative inline-block">
+                <AnimatedWords
+                  as="span"
+                  text="tid."
+                  className="font-display italic font-light"
+                  delay={0.25}
+                />
+                <HandDrawnUnderline
+                  className="absolute left-0 right-0 -bottom-1 w-full h-3"
+                  delay={1.0}
+                />
+              </span>
+            </>
+          }
+          body="Her kan I booke en tid til at få jeres søn omskåret. Vær opmærksom på, at klinikken kun har åbent på bestemte dage."
+        />
+
+        {/* Editorial image */}
+        <ContentSection bg="white">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.9, ease: EASE }}
+            className="relative overflow-hidden rounded-[1.5rem] border border-[color:var(--color-border)] shadow-[0_50px_100px_-40px_rgba(11,16,32,0.25)]"
+          >
             <img
-              src="/images/Forside-specialklinik-Taastrup%20(2).jpg"
-              alt="Specialklinik Taastrup"
-              className="w-full h-[240px] md:h-[320px] object-cover"
+              src="/images/omskaering.jpg"
+              alt="Kirurgisk klinik Brabrand — klinikken"
+              className="w-full h-[280px] md:h-[420px] object-cover animate-ken-burns"
               loading="lazy"
             />
-          </figure>
+          </motion.div>
+        </ContentSection>
 
-          <div className="space-y-6 text-text-muted leading-[1.8]">
-            <p>
-              Her kan I booke en tid til at få jeres søn omskåret. Hvis det drejer sig om
-              omskæring af en dreng over 10 år eller voksenomskæring, bedes I kontakte
-              klinikken inden tidsbestilling.
-            </p>
-            <p>
-              Før I bestiller tid, anbefaler vi, at I læser afsnittene om forberedelse inden
-              indgrebet og information om drengeomskæring.
-            </p>
-            <p>
-              Hvis I ikke kan komme til jeres aftale, beder vi jer afbestille så tidligt som
-              muligt i bookingmodulet eller via SMS til 20 76 35 16.
-            </p>
-            <p className="font-medium text-secondary">
-              Vær opmærksom på, at klinikken kun har åbent på bestemte dage, og at fremmøde
-              kun kan ske efter forudgående booking eller aftale.
-            </p>
+        {/* Info cards */}
+        <ContentSection bg="ivory">
+          <div className="grid md:grid-cols-3 gap-5">
+            {INFO_CARDS.map((card, i) => (
+              <motion.div
+                key={card.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.8, ease: EASE, delay: i * 0.08 }}
+                className="card-ivory p-7 rounded-[1.25rem]"
+              >
+                <h3 className="font-heading text-lg font-medium text-[color:var(--color-ink)] mb-3">
+                  {card.title}
+                </h3>
+                <p className="text-[15px] leading-[1.8] text-[color:var(--color-text-muted)]">
+                  {card.body}
+                </p>
+                {card.link && (
+                  <Link
+                    to={card.link.to}
+                    className="animated-link text-[color:var(--color-ink)] font-medium text-[15px] mt-4 inline-block"
+                  >
+                    {card.link.label}
+                  </Link>
+                )}
+              </motion.div>
+            ))}
           </div>
+        </ContentSection>
 
-          <section className="mt-10">
-            <h3 className="font-heading text-2xl text-secondary mb-4">Online booking</h3>
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        {/* Booking embed */}
+        <ContentSection bg="white">
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: EASE }}
+            className="eyebrow mb-4"
+          >
+            Online booking
+          </motion.p>
+          <h2 className="display-lg text-[color:var(--color-ink)] mb-10">
+            <AnimatedWords
+              as="span"
+              mode="inView"
+              text="Vælg en ledig tid"
+              className="block"
+            />
+          </h2>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: EASE }}
+          >
+            <div className="card-elevated overflow-hidden">
               <iframe
-                title="Online booking - Specialklinik Taastrup"
-                src="https://system.easypractice.net/book/kirurgisk-klinik-brabrand"
+                title="Online booking - Kirurgisk klinik Brabrand"
+                src="https://system.easypractice.net/book/kirurgisk-klinik-brabrand?cookie_fixed=1"
                 width="100%"
                 height="760"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               />
             </div>
-            <p className="text-sm text-text-muted mt-3">
-              Hvis booking-vinduet ikke vises, kan du åbne booking i ny fane{" "}
+            <p className="text-[14px] text-[color:var(--color-text-muted)] mt-4">
+              Hvis booking-vinduet ikke vises, kan du{" "}
               <a
-                href="https://system.easypractice.net/book/kirurgisk-klinik-brabrand"
+                href="https://system.easypractice.net/book/kirurgisk-klinik-brabrand?cookie_fixed=1"
                 target="_blank"
                 rel="noreferrer"
-                className="text-primary hover:underline"
+                className="animated-link text-[color:var(--color-ink)] font-medium"
               >
-                her
+                åbne booking i ny fane
               </a>.
             </p>
-          </section>
-        </article>
-        <PatientTestimonials />
+          </motion.div>
+        </ContentSection>
+
+        <ReviewsSlider />
+        <CtaBand />
       </main>
-      <Footer siteName={siteName} siteDescription={siteInfo?.description} />
+
+      <Footer siteName={siteName} />
     </div>
   );
 }

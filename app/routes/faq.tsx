@@ -1,32 +1,34 @@
 import type { Route } from "./+types/faq";
+import { motion } from "framer-motion";
+import { Link } from "react-router";
 import { Header } from "~/components/Header";
 import { Footer } from "~/components/Footer";
 import { JsonLd } from "~/components/JsonLd";
-import { PatientTestimonials } from "~/components/PatientTestimonials";
-import { getSiteInfo } from "~/lib/wp-api";
-import { buildMeta, buildWebsiteJsonLd } from "~/lib/seo";
-import type { WpSiteInfo } from "~/lib/wp-types";
+import { CtaBand } from "~/components/home/CtaBand";
+import { SubpageHero } from "~/components/shared/SubpageHero";
+import { ContentSection } from "~/components/shared/ContentSection";
+import { AccordionList } from "~/components/shared/AccordionList";
+import { AnimatedWords } from "~/components/motion/AnimatedWords";
+import { HandDrawnUnderline } from "~/components/motion/HandDrawnUnderline";
+import { buildMeta, buildWebsiteJsonLd, buildFaqJsonLd } from "~/lib/seo";
+import { FAQ_ITEMS } from "~/lib/faq";
+
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 export async function loader({ request }: Route.LoaderArgs) {
   const siteUrl = new URL(request.url).origin;
-  let siteInfo: WpSiteInfo | null = null;
-  try {
-    siteInfo = await getSiteInfo().catch(() => null);
-  } catch {
-    // graceful degradation
-  }
-  return { siteInfo, siteUrl };
+  return { siteUrl };
 }
 
-export function meta({ data }: Route.MetaArgs) {
-  if (!data) return [{ title: "FAQ | Specialklinik Taastrup" }];
-  const { siteInfo, siteUrl } = data;
-  const siteName = siteInfo?.name ?? "Specialklinik Taastrup";
+export function meta({ loaderData }: Route.MetaArgs) {
+  if (!loaderData) return [{ title: "Omskærings-FAQ | Spørgsmål og svar om omskæring" }];
+  const { siteUrl } = loaderData;
+  const siteName = "Kirurgisk klinik Brabrand";
   return [
     ...buildMeta({
-      title: `FAQ | ${siteName}`,
+      title: "Omskærings-FAQ | Spørgsmål og svar om omskæring",
       description:
-        "Ofte stillede spørgsmål om omskæring, forberedelse, smertelindring, efterforløb og sikkerhed.",
+        "Få svar på alle dine spørgsmål om omskæring på vores FAQ-side. Hos Kirurgisk klinik Brabrand er vi specialiserede i omskæringsprocedurer og har samlet en liste over de mest almindelige spørgsmål, som vores patienter stiller os. Lær mere om proceduren, dens fordele og ulemper, og hvordan man forbereder sig på operationen.",
       url: `${siteUrl}/faq`,
       siteName,
       siteUrl,
@@ -37,83 +39,83 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
-const FAQ_ITEMS = [
-  {
-    q: "Hvornår er den bedste alder for omskæring?",
-    a: "Vi anbefaler ofte, at omskæring finder sted når barnet er 2-8 uger gammelt, da indgrebet her typisk er mest skånsomt.",
-  },
-  {
-    q: "Er omskæring farligt?",
-    a: "Forekomsten af komplikationer er lav ved korrekt udført omskæring. Derfor bør indgrebet kun udføres af autoriserede og erfarne sundhedspersoner.",
-  },
-  {
-    q: "Hvilke risici er forbundet med omskæring?",
-    a: "De væsentligste risici er blødning og infektion. Klinikken vejleder altid grundigt i, hvad I skal holde øje med efter indgrebet.",
-  },
-  {
-    q: "Er omskæring af drengebørn ulovligt?",
-    a: "Omskæring er ikke ulovligt i Danmark, når det foretages af autoriserede sundhedspersoner og efter gældende regler.",
-  },
-  {
-    q: "Mit barn er forkølet, skal jeg aflyse tiden?",
-    a: "Hvis barnet er alment påvirket med fx feber, sløvhed eller nedsat appetit, bør tiden aflyses. Ved let forkølelse kan indgrebet ofte stadig gennemføres.",
-  },
-  {
-    q: "Hvad skal jeg medbringe til klinikken?",
-    a: "Barnets CPR/sygesikringskort, evt. sukkervand i sutteflaske, evt. modermælk/modermælkserstatning samt ekstra bleer og tøj.",
-  },
-  {
-    q: "Hvordan foregår betalingen?",
-    a: "Betalingen foregår ved fremmøde i klinikken.",
-  },
-  {
-    q: "Hvilken operationsmetode bruger I?",
-    a: "Der anvendes enten klassisk metode eller ringmetoden Circumplast. Metoden vælges i dialog med forældrene.",
-  },
-  {
-    q: "Hvor længe har barnet ondt efter omskæring?",
-    a: "Som regel lette smerter i 2-3 dage, som typisk kan håndteres med relevant smertestillende behandling.",
-  },
-  {
-    q: "Hvor længe går der før såret er helet?",
-    a: "Såret heler som regel på 1-2 uger. Let hævelse kan ses i flere uger, og det kosmetiske resultat vurderes først senere.",
-  },
-  {
-    q: "Skal begge forældre komme med i klinikken?",
-    a: "Begge forældre anbefales at møde op. Hvis kun den ene møder, kan samtykke/fuldmagt fra den anden forælder være nødvendig ved fælles forældremyndighed.",
-  },
-];
-
 export default function FAQ({ loaderData }: Route.ComponentProps) {
-  const { siteInfo, siteUrl } = loaderData;
-  const siteName = siteInfo?.name ?? "Specialklinik Taastrup";
+  const { siteUrl } = loaderData;
+  const siteName = "Kirurgisk klinik Brabrand";
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header siteName={siteName} lightBg />
-      <JsonLd data={buildWebsiteJsonLd(siteInfo, siteUrl)} />
-      <main className="flex-1 pt-28 pb-20">
-        <article className="max-w-4xl mx-auto px-6">
-          <h1 className="font-heading text-4xl md:text-5xl font-medium text-secondary mb-6">
-            FAQ
-          </h1>
-          <h2 className="font-heading text-2xl text-secondary mb-4">Oftest stillede spørgsmål</h2>
-          <p className="text-text-muted leading-[1.8] mb-8">
-            Her finder I svar på de mest almindelige spørgsmål om klinikken og vores
-            procedurer. Hvis I ikke finder svar på jeres spørgsmål, kontakt os gerne.
-          </p>
-          <div className="space-y-4">
-            {FAQ_ITEMS.map((item) => (
-              <section key={item.q} className="glass-card p-5">
-                <h3 className="font-heading text-xl text-secondary mb-2">{item.q}</h3>
-                <p className="text-text-muted leading-[1.8]">{item.a}</p>
-              </section>
-            ))}
+      <JsonLd data={buildWebsiteJsonLd(siteUrl)} />
+      <JsonLd data={buildFaqJsonLd(FAQ_ITEMS)} />
+
+      <main className="flex-1">
+        <SubpageHero
+          eyebrow="FAQ · Ofte stillede spørgsmål"
+          headline={
+            <>
+              <AnimatedWords
+                as="span"
+                text="Tydelige"
+                className="block"
+                delay={0.1}
+              />
+              <span className="relative inline-block">
+                <AnimatedWords
+                  as="span"
+                  text="svar."
+                  className="font-display italic font-light"
+                  delay={0.25}
+                />
+                <HandDrawnUnderline
+                  className="absolute left-0 right-0 -bottom-1 w-full h-3"
+                  delay={1.0}
+                />
+              </span>
+            </>
+          }
+        />
+
+        <ContentSection bg="ivory">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+            <div className="lg:col-span-5 lg:sticky lg:top-32">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, ease: EASE }}
+              >
+                <span className="sticker sticker-warm mb-6 inline-flex">
+                  {FAQ_ITEMS.length} spørgsmål
+                </span>
+                <p className="text-[17px] leading-[1.8] text-[color:var(--color-text-muted)] max-w-md mt-6">
+                  Her finder I svar på de mest almindelige spørgsmål om klinikken og vores
+                  procedurer. Hvis I ikke finder svar på jeres spørgsmål, er I altid velkomne til at kontakte os.
+                </p>
+                <Link
+                  to="/kontakt"
+                  className="btn-outline mt-8 inline-flex items-center"
+                >
+                  Kontakt os
+                  <span className="btn-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  </span>
+                </Link>
+              </motion.div>
+            </div>
+
+            <div className="lg:col-span-7">
+              <AccordionList items={FAQ_ITEMS} defaultOpen={0} />
+            </div>
           </div>
-        </article>
-        <PatientTestimonials />
+        </ContentSection>
+
+        <CtaBand />
       </main>
-      <Footer siteName={siteName} siteDescription={siteInfo?.description} />
+
+      <Footer siteName={siteName} />
     </div>
   );
 }

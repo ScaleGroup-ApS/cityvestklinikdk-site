@@ -41,8 +41,21 @@ spec:
               value: "production"
             - name: PORT
               value: "3000"
-            - name: WP_API_URL
-              value: "http://wordpress:80/wp-json"
+
+            # Contact form (/kontakt → /kontakt-send): lets the SSR app call the
+            # CRM's cluster-internal POST /internal/site-submission, which stores
+            # the submission and emails it to the clinic via Resend. CRM_API_TOKEN
+            # is a copy of the platform's AGENT_API_TOKEN — see the deploy runbook
+            # for how it is provisioned into this namespace.
+            - name: CRM_API_URL
+              value: "http://crm-backend.crm-system.svc.cluster.local:5000"
+            - name: SITE_SLUG
+              value: "{{CUSTOMER_SLUG}}"
+            - name: CRM_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: crm-internal
+                  key: CRM_API_TOKEN
 
           livenessProbe:
             httpGet:

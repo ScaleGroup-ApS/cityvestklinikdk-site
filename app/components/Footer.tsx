@@ -1,129 +1,165 @@
-import { useState } from "react";
 import { Link } from "react-router";
+import { AnimatedWords } from "~/components/motion/AnimatedWords";
+import { openCookieSettings } from "~/components/CookieConsent";
 
 interface FooterProps {
   siteName?: string;
   siteDescription?: string;
 }
 
-export function Footer({ siteName = "Kirurgisk klinik Brabrand", siteDescription }: FooterProps) {
+export function Footer({
+  siteName = "Kirurgisk klinik Brabrand",
+  siteDescription,
+}: FooterProps) {
   const year = new Date().getFullYear();
-  const [logoError, setLogoError] = useState(false);
 
   return (
-    <footer className="text-text-on-dark" style={{ background: "var(--color-primary)" }}>
-      {/* Top accent line */}
-      <div className="h-[1px]" style={{ background: "rgba(255,255,255,0.35)" }} />
+    <footer className="relative isolate overflow-hidden bg-[color:var(--color-ink)] text-[color:var(--color-text-on-dark)]">
+      <div aria-hidden className="absolute inset-0 grain grain-dark pointer-events-none" />
 
-      {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-6 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-          {/* Brand Column */}
-          <div className="md:col-span-5">
-            <Link to="/" className="inline-flex items-center font-heading text-2xl md:text-3xl font-bold text-white tracking-tight hover:opacity-90 transition-opacity">
-              {logoError ? (
-                siteName
-              ) : (
-                <img
-                  src="/images/logo_2.png"
-                  alt={siteName}
-                  className="h-12 md:h-14 w-auto object-contain"
-                  onError={() => setLogoError(true)}
-                />
-              )}
-            </Link>
-            {siteDescription ? (
-              <p className="mt-4 text-white/90 max-w-xs leading-relaxed text-sm">
-                {siteDescription}
-              </p>
-            ) : (
-              <p className="mt-4 text-white/90 max-w-xs leading-relaxed text-sm">
-                Professionel omskæring i trygge rammer. Vi ligger i City Vest i Brabrand ved Aarhus.
-              </p>
-            )}
+      {/* Oversized wordmark */}
+      <div
+        aria-hidden
+        className="pointer-events-none select-none absolute -bottom-10 left-0 right-0 text-center font-display leading-none"
+        style={{
+          fontSize: "clamp(6rem, 24vw, 22rem)",
+          color: "rgba(237,239,245,0.04)",
+          fontWeight: 300,
+          letterSpacing: "-0.05em",
+        }}
+      >
+        cityvest
+      </div>
 
-            {/* Contact Info */}
-            <div className="mt-8 space-y-2 text-sm text-white/90">
-              <div className="flex items-center gap-3">
-                <svg className="w-4 h-4 text-white/90 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>Gudrunsvej 7, 8220 Brabrand</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <svg className="w-4 h-4 text-white/90 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                <span>20 76 35 16</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <svg className="w-4 h-4 text-white/90 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <a href="mailto:info@cityvestklinik.dk" className="hover:text-white transition-colors">info@cityvestklinik.dk</a>
-              </div>
+      <div className="relative max-w-[1400px] mx-auto px-6 lg:px-10 pt-20 pb-10">
+        {/* Top: intent + CTA */}
+        <div className="grid lg:grid-cols-12 gap-10 pb-20 border-b border-white/10">
+          <div className="lg:col-span-7">
+            <p className="eyebrow eyebrow-light mb-5">Kirurgisk klinik Brabrand</p>
+            <h3 className="display-xl text-white leading-[1.05] max-w-3xl">
+              <AnimatedWords
+                as="span"
+                mode="inView"
+                text="Et roligt, professionelt forløb —"
+                className="block"
+              />
+              <AnimatedWords
+                as="span"
+                mode="inView"
+                text="kun et klik væk."
+                className="block font-display italic font-light text-[color:var(--color-accent-warm-soft)]"
+                delay={0.2}
+              />
+            </h3>
+          </div>
+          <div className="lg:col-span-5 flex lg:justify-end items-end">
+            <div className="flex flex-wrap gap-3">
+              <Link to="/booking" className="btn-gradient btn-on-dark">
+                Book tid online
+                <span className="btn-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </span>
+              </Link>
+              <Link to="/kontakt" className="btn-gradient btn-outline-on-dark">
+                Skriv til os
+              </Link>
             </div>
           </div>
+        </div>
 
-          {/* Spacer */}
-          <div className="hidden md:block md:col-span-1" />
+        {/* Columns */}
+        <div className="grid grid-cols-2 lg:grid-cols-12 gap-10 pt-16 pb-14">
+          <div className="col-span-2 lg:col-span-4">
+            <Link to="/" className="inline-flex items-center">
+              <span className="font-display text-2xl text-white leading-none">
+                Kirurgisk klinik Brabrand
+              </span>
+            </Link>
+            <p className="mt-5 text-[14px] leading-[1.8] text-[color:var(--color-text-on-dark-muted)] max-w-xs">
+              {siteDescription ??
+                "Professionel omskæring af drengebørn i trygge rammer. Vi er autoriserede speciallæger og ligger i City Vest i Brabrand ved Aarhus."}
+            </p>
 
-          {/* Navigation */}
-          <div className="md:col-span-2">
-            <h3 className="text-xs font-semibold text-white uppercase tracking-[0.15em] mb-5">
-              Navigation
-            </h3>
+            <ul className="mt-8 space-y-3 text-[13px] text-[color:var(--color-text-on-dark)]">
+              <li className="flex items-start gap-3">
+                <IconMail />
+                <a href="mailto:info@cityvestklinik.dk" className="animated-link">
+                  info@cityvestklinik.dk
+                </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <IconPin />
+                Gudrunsvej 7, 8220 Brabrand
+              </li>
+              <li className="flex items-start gap-3">
+                <IconPhone />
+                <span>
+                  <a href="tel:+4520763516" className="animated-link">
+                    20 76 35 16
+                  </a>
+                  <span className="block mt-1 text-[color:var(--color-text-on-dark-muted)]">
+                    Kun akutte henvendelser efter omskæring – øvrige spørgsmål
+                    bedes sendt på mail.
+                  </span>
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="lg:col-span-2 lg:col-start-6">
+            <h4 className="eyebrow eyebrow-light mb-5">Navigation</h4>
             <ul className="space-y-3">
               <FooterLink to="/" label="Forside" />
-              <FooterLink to="/priser" label="Priser" />
-              <FooterLink to="/omskaering" label="Omskæring" />
+              <FooterLink to="/om-omskaering" label="Om omskæring" />
               <FooterLink to="/om-os" label="Om os" />
               <FooterLink to="/faq" label="FAQ" />
-              <FooterLink to="/booking" label="Booking" />
-              <FooterLink to="/kontakt-os" label="Kontakt" />
+              <FooterLink to="/priser" label="Priser" />
+              <FooterLink to="/find-os" label="Find os" />
+              <FooterLink to="/kontakt" label="Kontakt" />
             </ul>
           </div>
 
-          {/* Services */}
-          <div className="md:col-span-2">
-            <h3 className="text-xs font-semibold text-white uppercase tracking-[0.15em] mb-5">
-              Omskæring
-            </h3>
+          <div className="lg:col-span-3">
+            <h4 className="eyebrow eyebrow-light mb-5">Metoder</h4>
             <ul className="space-y-3">
-              <FooterLink to="/forberedelse-inden-omskaering" label="Forberedelse før indgrebet" />
-              <FooterLink to="/omskaering" label="Om omskæring" />
-              <FooterLink to="/omskaering-med-klassisk-metode" label="Klassisk metode" />
+              <FooterLink to="/omskaering-ved-klassisk-metode" label="Klassisk metode" />
               <FooterLink to="/omskaering-med-ringmetoden" label="Ringmetoden" />
+              <FooterLink to="/forberedelse-foer-indgrebet" label="Forberedelse" />
             </ul>
           </div>
 
-          {/* Legal */}
-          <div className="md:col-span-2">
-            <h3 className="text-xs font-semibold text-white uppercase tracking-[0.15em] mb-5">
-              Juridisk
-            </h3>
+          <div className="lg:col-span-2">
+            <h4 className="eyebrow eyebrow-light mb-5">Juridisk</h4>
             <ul className="space-y-3">
               <FooterLink to="/privatlivspolitik" label="Privatlivspolitik" />
               <FooterLink to="/cookiepolitik" label="Cookie-politik" />
+              <li>
+                <button
+                  type="button"
+                  onClick={openCookieSettings}
+                  className="animated-link text-[14px] text-[color:var(--color-text-on-dark-muted)] hover:text-white transition-colors text-left"
+                >
+                  Cookieindstillinger
+                </button>
+              </li>
             </ul>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-white/8">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-white/90">
+        {/* Bottom bar */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pt-8 border-t border-white/10 text-[12px] text-[color:var(--color-text-on-dark-muted)]">
+          <p>
             © {year} {siteName}. Alle rettigheder forbeholdes.
           </p>
-          <p className="text-xs text-white/85">
-            Drevet af{" "}
+          <p>
+            Designet & udviklet af{" "}
             <a
               href="https://scaleweb.dk"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white hover:text-white/80 transition-colors"
+              className="text-white animated-link"
             >
               Scaleweb
             </a>
@@ -139,10 +175,33 @@ function FooterLink({ to, label }: { to: string; label: string }) {
     <li>
       <Link
         to={to}
-        className="animated-link text-sm text-white/90 hover:text-white transition-colors"
+        className="animated-link text-[14px] text-[color:var(--color-text-on-dark-muted)] hover:text-white transition-colors"
       >
         {label}
       </Link>
     </li>
+  );
+}
+
+function IconPin() {
+  return (
+    <svg className="w-4 h-4 mt-0.5 shrink-0 text-[color:var(--color-accent-warm-soft)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+}
+function IconMail() {
+  return (
+    <svg className="w-4 h-4 mt-0.5 shrink-0 text-[color:var(--color-accent-warm-soft)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+  );
+}
+function IconPhone() {
+  return (
+    <svg className="w-4 h-4 mt-0.5 shrink-0 text-[color:var(--color-accent-warm-soft)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+    </svg>
   );
 }
