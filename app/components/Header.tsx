@@ -1,319 +1,147 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { NavLink } from "react-router";
+import { Logo } from "~/components/Logo";
+import { NAV, SITE } from "~/lib/site";
 
-interface HeaderProps {
-  siteName?: string;
-  lightBg?: boolean;
-  menuItems?: Array<{
-    title: string;
-    url: string;
-    children?: Array<{ title: string; url: string }>;
-  }>;
-}
+/**
+ * Sticky site header with translucent blur, active-aware navigation and a
+ * CSS-only reveal on the mobile drawer. Interactive state is a single
+ * boolean — no animation libraries.
+ */
+export function Header() {
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-export function Header({
-  siteName = "Kirurgisk klinik Brabrand",
-  menuItems = [],
-  lightBg = false,
-}: HeaderProps) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  const navItems =
-    menuItems.length > 0
-      ? menuItems
-      : [
-          {
-            title: "Omskæring",
-            url: "/om-omskaering",
-            children: [
-              { title: "Om omskæring", url: "/om-omskaering" },
-              { title: "Ringmetoden", url: "/omskaering-med-ringmetoden" },
-              { title: "Klassisk metode", url: "/omskaering-ved-klassisk-metode" },
-              { title: "Forberedelse", url: "/forberedelse-foer-indgrebet" },
-            ],
-          },
-          { title: "Om os", url: "/om-os" },
-          { title: "FAQ", url: "/faq" },
-          { title: "Priser", url: "/priser" },
-          { title: "Find os", url: "/find-os" },
-          { title: "Kontakt", url: "/kontakt" },
-        ];
-
-  const solid = true;
+  // Lock body scroll while the mobile drawer is open.
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-white border-b border-[color:var(--color-border)]"
+      className={`sticky top-0 z-50 transition-colors duration-300 ${
+        scrolled
+          ? "border-b border-border bg-surface/85 backdrop-blur-xl"
+          : "border-b border-transparent bg-surface/40 backdrop-blur-md"
+      }`}
     >
-      {/* Announcement bar */}
-      <div
-        className={[
-          "transition-colors duration-500",
-          solid ? "bg-[color:var(--color-ink)] text-white" : "bg-black/20 text-white",
-        ].join(" ")}
+      <nav
+        className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8"
+        aria-label="Hovednavigation"
       >
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10 h-9 flex items-center justify-center">
-          <a
-            href="https://specialklinik.dk"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="animated-link text-[12px] font-medium tracking-[0.02em] text-center"
-          >
-            Besøg også vores klinik i Taastrup →
-          </a>
-        </div>
-      </div>
+        <Logo />
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 h-20 flex items-center justify-between gap-3 sm:gap-6">
-        {/* Logo */}
-        <a href="/" className="inline-flex items-center gap-3 shrink-0 group min-w-0">
-          <img
-            src="/images/logo_2.png"
-            alt={siteName}
-            className="h-11 sm:h-12 lg:h-14 w-auto object-contain transition-opacity duration-300"
-          />
-        </a>
-
-        {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center gap-9">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.url}
-              href={item.url}
-              label={item.title}
-              childrenItems={item.children}
-              solid={solid}
-            />
+        <ul className="hidden items-center gap-9 md:flex">
+          {NAV.map((item) => (
+            <li key={item.to}>
+              <NavLink
+                to={item.to}
+                end={item.to === "/"}
+                className={({ isActive }) =>
+                  `animated-link text-[0.95rem] font-medium transition-colors ${
+                    isActive ? "text-primary-dark" : "text-text hover:text-ink"
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
+            </li>
           ))}
-        </nav>
+        </ul>
 
-        {/* Right cluster */}
-        <div className="hidden lg:flex items-center gap-3">
-          <a href="/booking" className="btn-gradient" style={{ padding: "0.65rem 1.3rem" }}>
-            Book tid
-            <span className="btn-arrow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
-            </span>
+        <div className="hidden items-center gap-3 md:flex">
+          <a href={`tel:${SITE.phoneHref}`} className="btn-ink">
+            Ring {SITE.phone.replace("+45 ", "")}
+            <span className="btn-arrow" aria-hidden="true">→</span>
           </a>
         </div>
 
-        {/* Mobile trigger */}
+        {/* Mobile toggle */}
         <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className={[
-            "lg:hidden shrink-0 inline-flex items-center gap-2 px-2 py-2 sm:px-3 rounded-full border transition-all duration-300",
-            solid
-              ? "border-[color:var(--color-border)] text-[color:var(--color-ink)]"
-              : "border-white/40 text-white",
-          ].join(" ")}
-          aria-label={mobileOpen ? "Luk menu" : "Åbn menu"}
-          aria-expanded={mobileOpen}
+          type="button"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface/70 md:hidden"
+          aria-expanded={open}
+          aria-controls="mobile-menu"
+          aria-label={open ? "Luk menu" : "Åbn menu"}
+          onClick={() => setOpen((v) => !v)}
         >
-          <span className="flex flex-col gap-[5px] w-4">
+          <span className="relative block h-4 w-5" aria-hidden="true">
             <span
-              className={
-                "block h-px bg-current transition-all duration-300 " +
-                (mobileOpen ? "translate-y-[6px] rotate-45" : "")
-              }
+              className={`absolute left-0 block h-0.5 w-5 bg-ink transition-transform duration-300 ${
+                open ? "top-1/2 rotate-45" : "top-0"
+              }`}
             />
             <span
-              className={
-                "block h-px bg-current transition-all duration-300 " +
-                (mobileOpen ? "opacity-0" : "opacity-100")
-              }
+              className={`absolute left-0 top-1/2 block h-0.5 w-5 -translate-y-1/2 bg-ink transition-opacity duration-200 ${
+                open ? "opacity-0" : "opacity-100"
+              }`}
             />
             <span
-              className={
-                "block h-px bg-current transition-all duration-300 " +
-                (mobileOpen ? "-translate-y-[6px] -rotate-45" : "")
-              }
+              className={`absolute left-0 block h-0.5 w-5 bg-ink transition-transform duration-300 ${
+                open ? "top-1/2 -rotate-45" : "bottom-0"
+              }`}
             />
           </span>
-          <span className="hidden sm:inline text-[11px] uppercase tracking-[0.24em]">{mobileOpen ? "Luk" : "Menu"}</span>
         </button>
-      </div>
+      </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile drawer */}
       <div
-        className={[
-          "lg:hidden overflow-hidden bg-white/98 backdrop-blur-xl border-t border-[color:var(--color-border)] transition-[max-height,opacity] duration-500 ease-out",
-          mobileOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0",
-        ].join(" ")}
+        id="mobile-menu"
+        className={`overflow-hidden border-t border-border bg-surface md:hidden ${
+          open ? "max-h-[80vh]" : "max-h-0"
+        }`}
+        style={{ transition: "max-height 0.4s cubic-bezier(0.22,1,0.36,1)" }}
       >
-        <nav className="max-w-[1400px] mx-auto px-6 lg:px-10 py-6 space-y-1">
-          {navItems.map((item) => (
-            <MobileNavLink
-              key={item.url}
-              href={item.url}
-              label={item.title}
-              childrenItems={item.children}
-              onClick={() => setMobileOpen(false)}
-            />
+        <ul className="flex flex-col gap-1 px-5 py-4">
+          {NAV.map((item) => (
+            <li key={item.to}>
+              <NavLink
+                to={item.to}
+                end={item.to === "/"}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `block rounded-xl px-4 py-3 text-lg font-medium transition-colors ${
+                    isActive
+                      ? "bg-surface-dim text-primary-dark"
+                      : "text-text hover:bg-surface-dim"
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
+            </li>
           ))}
-          <div className="pt-5 mt-3 border-t border-[color:var(--color-border)] flex flex-col gap-2">
+          <li className="mt-3">
             <a
-              href="/booking"
-              onClick={() => setMobileOpen(false)}
-              className="btn-gradient w-full"
+              href={`tel:${SITE.phoneHref}`}
+              className="btn-ink w-full"
+              onClick={() => setOpen(false)}
             >
-              Book tid
-              <span className="btn-arrow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-              </span>
+              Ring {SITE.phone.replace("+45 ", "")}
             </a>
+          </li>
+          <li className="mt-1">
             <a
-              href="/kontakt"
-              onClick={() => setMobileOpen(false)}
+              href={`mailto:${SITE.email}`}
               className="btn-outline w-full"
+              onClick={() => setOpen(false)}
             >
-              Kontakt klinikken
+              Skriv til os
             </a>
-          </div>
-        </nav>
+          </li>
+        </ul>
       </div>
     </header>
-  );
-}
-
-function NavLink({
-  href,
-  label,
-  childrenItems,
-  solid,
-}: {
-  href: string;
-  label: string;
-  childrenItems?: Array<{ title: string; url: string }>;
-  solid: boolean;
-}) {
-  const to = href.startsWith("http") ? new URL(href).pathname : href;
-  const hasChildren = !!childrenItems?.length;
-
-  return (
-    <div className="relative group">
-      <a
-        href={to}
-        className={[
-          "animated-link text-[13px] font-medium uppercase tracking-[0.18em] transition-colors duration-300 inline-flex items-center gap-1.5",
-          solid
-            ? "text-[color:var(--color-ink)] hover:text-[color:var(--color-primary-dark)]"
-            : "text-white/90 hover:text-white",
-        ].join(" ")}
-      >
-        {label}
-        {hasChildren && (
-          <svg
-            className="w-3 h-3 transition-transform group-hover:rotate-180"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        )}
-      </a>
-
-      {hasChildren && (
-        <div className="absolute left-0 top-full pt-4 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300">
-          <div
-            className="min-w-[320px] rounded-2xl border border-[color:var(--color-border)] bg-white shadow-[0_30px_60px_-30px_rgba(11,16,32,0.3)] p-2"
-          >
-            {childrenItems!.map((item) => {
-              const childTo = item.url.startsWith("http")
-                ? new URL(item.url).pathname
-                : item.url;
-              return (
-                <a
-                  key={item.url}
-                  href={childTo}
-                  className="flex items-center justify-between px-4 py-3 rounded-xl text-[14px] text-[color:var(--color-ink)] hover:bg-[color:var(--color-surface-dim)] transition-colors"
-                >
-                  <span>{item.title}</span>
-                  <svg
-                    className="w-3.5 h-3.5 text-[color:var(--color-text-muted)]"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 12h14M13 6l6 6-6 6" />
-                  </svg>
-                </a>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MobileNavLink({
-  href,
-  label,
-  childrenItems,
-  onClick,
-}: {
-  href: string;
-  label: string;
-  childrenItems?: Array<{ title: string; url: string }>;
-  onClick: () => void;
-}) {
-  const to = href.startsWith("http") ? new URL(href).pathname : href;
-  const hasChildren = !!childrenItems?.length;
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <div className="border-b border-[color:var(--color-border)] last:border-b-0">
-      <div className="flex items-center">
-        <a
-          href={to}
-          onClick={onClick}
-          className="flex-1 block py-4 font-display text-xl text-[color:var(--color-ink)]"
-        >
-          {label}
-        </a>
-        {hasChildren && (
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            aria-label="Åbn undermenu"
-            className="p-2"
-          >
-            <svg
-              className={
-                "w-4 h-4 transition-transform duration-300 " +
-                (expanded ? "rotate-180" : "")
-              }
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-        )}
-      </div>
-      {hasChildren && expanded && (
-        <div className="pl-2 pb-3 space-y-1">
-          {childrenItems!.map((item) => {
-            const childTo = item.url.startsWith("http")
-              ? new URL(item.url).pathname
-              : item.url;
-            return (
-              <a
-                key={item.url}
-                href={childTo}
-                onClick={onClick}
-                className="block px-3 py-2 rounded-lg text-[14px] text-[color:var(--color-text-muted)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-surface-dim)] transition-colors"
-              >
-                {item.title}
-              </a>
-            );
-          })}
-        </div>
-      )}
-    </div>
   );
 }
