@@ -9,15 +9,10 @@ import {
 import type { ReactNode } from "react";
 import type { Route } from "./+types/root";
 import { CookieConsent } from "~/components/CookieConsent";
-import { Header } from "~/components/Header";
-import { Footer } from "~/components/Footer";
-import { JsonLd } from "~/components/JsonLd";
-import { organizationJsonLd, localBusinessJsonLd } from "~/lib/seo";
-import { SITE } from "~/lib/site";
 import "./app.css";
 
 const GOOGLE_FONTS_URL =
-  "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Public+Sans:ital,wght@0,300..700;1,400&display=swap";
+  "https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@8..144,100..1000&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -26,12 +21,6 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.gstatic.com",
     crossOrigin: "anonymous",
   },
-  { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
-];
-
-export const meta: Route.MetaFunction = () => [
-  { name: "theme-color", content: "#0B1020" },
-  { name: "author", content: SITE.legalName },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -42,6 +31,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <link rel="icon" type="image/png" href="/images/logo_2.png" />
         {/* Non-render-blocking Google Fonts: preload → swap to stylesheet on load */}
         <link
           rel="preload"
@@ -57,11 +47,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <link rel="stylesheet" href={GOOGLE_FONTS_URL} />
         </noscript>
 
-        {/* Site-wide structured data */}
-        <JsonLd data={organizationJsonLd()} />
-        <JsonLd data={localBusinessJsonLd()} />
-
-        {/* Google Consent Mode v2 default — everything denied until consent */}
+        {/* Google Consent Mode v2 default state — everything denied until CookieConsent updates it */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -90,6 +76,7 @@ export function Layout({ children }: { children: ReactNode }) {
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', 'G-ES7V2VYL1D');
+              gtag('config', 'AW-11172242203');
             `.replace(/\n\s+/g, " "),
           }}
         />
@@ -105,40 +92,52 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
-  return (
-    <>
-      <Header />
-      <main id="indhold">
-        <Outlet />
-      </main>
-      <Footer />
-    </>
-  );
+  return <Outlet />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Ups!";
+  let message = "Oops!";
   let details = "Der opstod en uventet fejl.";
 
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? "404" : `Fejl ${error.status}`;
     details =
       error.status === 404
-        ? "Vi kunne ikke finde den side, du leder efter."
+        ? "Siden blev ikke fundet."
         : error.statusText || details;
-  } else if (error instanceof Error && import.meta.env.DEV) {
-    details = error.message;
+  } else if (error instanceof Error) {
+    if (import.meta.env.DEV) {
+      details = error.message;
+    }
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-surface-dim px-6">
-      <div className="mx-auto max-w-md py-16 text-center">
-        <p className="eyebrow mb-4">Cityvest Klinik</p>
-        <h1 className="font-display mb-3 text-6xl font-light text-ink">{message}</h1>
-        <p className="mb-8 text-lg text-text-muted">{details}</p>
-        <a href="/" className="btn-ink">
-          Tilbage til forsiden
-          <span className="btn-arrow" aria-hidden="true">→</span>
+    <main className="flex min-h-screen items-center justify-center bg-surface-dim">
+      <div className="text-center max-w-md mx-auto px-6 py-16">
+        <div className="mb-6">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-50 flex items-center justify-center">
+            <svg
+              className="w-10 h-10 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <h1 className="text-4xl font-bold text-secondary mb-3">{message}</h1>
+          <p className="text-text-muted text-lg">{details}</p>
+        </div>
+        <a
+          href="/"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary-dark transition-colors"
+        >
+          ← Gå til forsiden
         </a>
       </div>
     </main>

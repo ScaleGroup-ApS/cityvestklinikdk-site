@@ -2,26 +2,37 @@
  * sitemap[.]xml route — served at /sitemap.xml
  *
  * Static sitemap generated from the app's route table (app/routes.ts).
- * Absolute URLs use the canonical production domain.
+ * The site is fully code-defined, so routes are enumerated here directly.
+ * Paths match the live cityvestklinik.dk slugs (canonical, no trailing slash).
  */
 import type { Route } from "./+types/sitemap[.]xml";
-import { SITE } from "~/lib/site";
 
 /** Public, indexable routes with sitemap priority. Keep in sync with app/routes.ts. */
 const ROUTES: Array<{ path: string; priority: string; changefreq: string }> = [
   { path: "", priority: "1.0", changefreq: "weekly" },
-  { path: "services", priority: "0.9", changefreq: "monthly" },
-  { path: "about", priority: "0.7", changefreq: "monthly" },
+  { path: "om-omskaering", priority: "0.8", changefreq: "monthly" },
+  { path: "priser", priority: "0.8", changefreq: "monthly" },
+  { path: "booking", priority: "0.8", changefreq: "monthly" },
+  { path: "omskaering-med-ringmetoden", priority: "0.7", changefreq: "monthly" },
+  { path: "omskaering-ved-klassisk-metode", priority: "0.7", changefreq: "monthly" },
+  { path: "forberedelse-foer-indgrebet", priority: "0.7", changefreq: "monthly" },
+  { path: "om-os", priority: "0.6", changefreq: "monthly" },
+  { path: "faq", priority: "0.6", changefreq: "monthly" },
+  { path: "find-os", priority: "0.6", changefreq: "monthly" },
+  { path: "kontakt", priority: "0.6", changefreq: "monthly" },
+  { path: "privatlivspolitik", priority: "0.3", changefreq: "yearly" },
+  { path: "cookiepolitik", priority: "0.3", changefreq: "yearly" },
 ];
 
-export function loader(_: Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
+  const siteUrl = new URL(request.url).origin;
   const lastmod = new Date().toISOString().split("T")[0];
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ...ROUTES.map((r) => {
-      const loc = r.path ? `${SITE.url}/${r.path}` : SITE.url;
+      const loc = r.path ? `${siteUrl}/${r.path}` : siteUrl;
       return `  <url>
     <loc>${escapeXml(loc)}</loc>
     <lastmod>${lastmod}</lastmod>

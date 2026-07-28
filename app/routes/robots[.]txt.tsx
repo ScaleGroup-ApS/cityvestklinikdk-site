@@ -1,16 +1,18 @@
 /**
  * robots[.]txt route — served at /robots.txt
- * Allows all crawlers and points to the sitemap on the canonical domain.
+ *
+ * Allows all crawlers, points to the sitemap.
  */
 import type { Route } from "./+types/robots[.]txt";
-import { SITE } from "~/lib/site";
 
-export function loader(_: Route.LoaderArgs) {
+export function loader({ request }: Route.LoaderArgs) {
+  const siteUrl = new URL(request.url).origin;
+
   const robotsTxt = [
     "User-agent: *",
     "Allow: /",
     "",
-    `Sitemap: ${SITE.url}/sitemap.xml`,
+    `Sitemap: ${siteUrl}/sitemap.xml`,
   ].join("\n");
 
   return new Response(robotsTxt, {

@@ -1,59 +1,80 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SEO helpers — meta tags, Open Graph, Twitter cards, canonical links and
-// JSON-LD structured data. All pages consume these for consistent SEO.
+// SEO Helpers
+// Generates meta tags, Open Graph, JSON-LD structured data, and canonical URLs.
 // ─────────────────────────────────────────────────────────────────────────────
-import { SITE, FULL_ADDRESS } from "./site";
 
-export interface MetaOptions {
-  /** Page name, e.g. "Om os". Combined into "<name> | ABB Medical Aps". */
+interface SeoOptions {
   title: string;
-  description: string;
-  /** Absolute or root-relative path for this page, e.g. "/about". */
-  path: string;
+  description?: string;
+  url?: string;
+  siteName?: string;
+  siteUrl?: string;
   type?: "website" | "article";
   image?: string;
+  imageAlt?: string;
+  locale?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
   noindex?: boolean;
 }
 
-/** Absolute URL from a root-relative path. */
-export function absoluteUrl(path: string): string {
-  if (path.startsWith("http")) return path;
-  return `${SITE.url}${path === "/" ? "" : path}`;
-}
-
 /**
- * generateMeta — returns a complete React Router `meta` descriptor array:
- * title, description, canonical <link>, Open Graph and Twitter Card tags.
+ * Generate a complete set of meta tags for React Router's `meta` export.
  */
-export function generateMeta(opts: MetaOptions) {
-  const url = absoluteUrl(opts.path);
-  const image = absoluteUrl(opts.image ?? SITE.ogImage);
-  const fullTitle = `${opts.title} | ${SITE.brand}`;
-
+export function buildMeta(opts: SeoOptions) {
   const meta: Array<Record<string, string>> = [
-    { title: fullTitle },
-    { name: "description", content: opts.description },
-    // Canonical link (React Router renders link descriptors via <Meta />)
-    { tagName: "link", rel: "canonical", href: url },
-
-    // Open Graph
-    { property: "og:title", content: fullTitle },
-    { property: "og:description", content: opts.description },
-    { property: "og:type", content: opts.type ?? "website" },
-    { property: "og:url", content: url },
-    { property: "og:site_name", content: SITE.name },
-    { property: "og:locale", content: SITE.locale },
-    { property: "og:image", content: image },
-    { property: "og:image:width", content: "1200" },
-    { property: "og:image:height", content: "630" },
-
-    // Twitter Card
-    { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:title", content: fullTitle },
-    { name: "twitter:description", content: opts.description },
-    { name: "twitter:image", content: image },
+    { title: opts.title },
   ];
 
+  if (opts.description) {
+    meta.push({ name: "description", content: opts.description });
+  }
+
+  // Open Graph
+  meta.push({ property: "og:title", content: opts.title });
+  meta.push({ property: "og:type", content: opts.type ?? "website" });
+  if (opts.description) {
+    meta.push({ property: "og:description", content: opts.description });
+  }
+  if (opts.url) {
+    meta.push({ property: "og:url", content: opts.url });
+  }
+  if (opts.siteName) {
+    meta.push({ property: "og:site_name", content: opts.siteName });
+  }
+  meta.push({ property: "og:locale", content: opts.locale ?? "da_DK" });
+
+  if (opts.image) {
+    meta.push({ property: "og:image", content: opts.image });
+    meta.push({ property: "og:image:width", content: "1200" });
+    meta.push({ property: "og:image:height", content: "630" });
+    if (opts.imageAlt) {
+      meta.push({ property: "og:image:alt", content: opts.imageAlt });
+    }
+  }
+
+  // Twitter Card
+  meta.push({ name: "twitter:card", content: opts.image ? "summary_large_image" : "summary" });
+  meta.push({ name: "twitter:title", content: opts.title });
+  if (opts.description) {
+    meta.push({ name: "twitter:description", content: opts.description });
+  }
+  if (opts.image) {
+    meta.push({ name: "twitter:image", content: opts.image });
+  }
+
+  // Article dates
+  if (opts.type === "article") {
+    if (opts.publishedTime) {
+      meta.push({ property: "article:published_time", content: opts.publishedTime });
+    }
+    if (opts.modifiedTime) {
+      meta.push({ property: "article:modified_time", content: opts.modifiedTime });
+    }
+  }
+
+  // Robots — noindex,follow (not nofollow) so link equity still flows
+  // through pages like the booking confirmation screen.
   if (opts.noindex) {
     meta.push({ name: "robots", content: "noindex, follow" });
   }
@@ -61,122 +82,86 @@ export function generateMeta(opts: MetaOptions) {
   return meta;
 }
 
-// ── JSON-LD structured data ────────────────────────────────────────────────
-
-const CONTACT_POINT = {
-  "@type": "ContactPoint",
-  telephone: SITE.phoneHref,
-  email: SITE.email,
-  contactType: "customer service",
-  areaServed: "DK",
-  availableLanguage: ["Danish", "English"],
-};
-
-const POSTAL_ADDRESS = {
-  "@type": "PostalAddress",
-  streetAddress: SITE.address.street,
-  postalCode: SITE.address.postalCode,
-  addressLocality: SITE.address.city,
-  addressCountry: SITE.address.country,
-};
-
-/** Organization schema — site-wide legal entity. */
-export function organizationJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": `${SITE.url}/#organization`,
-    name: SITE.legalName,
-    alternateName: SITE.name,
-    url: SITE.url,
-    logo: absoluteUrl("/images/logo.svg"),
-    email: SITE.email,
-    telephone: SITE.phoneHref,
-    contactPoint: CONTACT_POINT,
-    address: POSTAL_ADDRESS,
-  };
-}
-
-/** LocalBusiness / MedicalClinic schema — physical clinic + NAP data. */
-export function localBusinessJsonLd() {
+/**
+ * Generate MedicalClinic JSON-LD (site-wide entity/NAP data).
+ * Used on every page so Google, the Knowledge Graph, and AI answer
+ * engines (AI Overviews, Perplexity, ChatGPT search) can resolve a
+ * single, consistent entity for the clinic.
+ */
+export function buildWebsiteJsonLd(siteUrl: string) {
   return {
     "@context": "https://schema.org",
     "@type": "MedicalClinic",
-    "@id": `${SITE.url}/#clinic`,
-    name: SITE.name,
-    legalName: SITE.legalName,
-    description: `${SITE.name} er en privat sundhedsklinik på ${FULL_ADDRESS}. Vi tilbyder helbredsundersøgelser, speciallægekonsultationer, mindre kirurgiske indgreb og vaccination.`,
-    url: SITE.url,
-    logo: absoluteUrl("/images/logo.svg"),
-    image: absoluteUrl(SITE.ogImage),
-    telephone: SITE.phoneHref,
-    email: SITE.email,
-    priceRange: "$$",
-    currenciesAccepted: "DKK",
-    address: POSTAL_ADDRESS,
-    areaServed: { "@type": "City", name: "København" },
-    openingHoursSpecification: [
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday"],
-        opens: "08:00",
-        closes: "17:00",
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: "Friday",
-        opens: "08:00",
-        closes: "15:00",
-      },
-    ],
-    contactPoint: CONTACT_POINT,
-  };
-}
-
-/** WebPage schema for an individual page. */
-export function webPageJsonLd(opts: { name: string; description: string; path: string }) {
-  const url = absoluteUrl(opts.path);
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "@id": `${url}#webpage`,
-    name: opts.name,
-    description: opts.description,
-    url,
-    isPartOf: { "@id": `${SITE.url}/#organization` },
-    about: { "@id": `${SITE.url}/#clinic` },
-    inLanguage: "da-DK",
-  };
-}
-
-/** BreadcrumbList schema for subpages. */
-export function breadcrumbJsonLd(trail: Array<{ name: string; path: string }>) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: trail.map((item, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: item.name,
-      item: absoluteUrl(item.path),
-    })),
+    "@id": `${siteUrl}/#organization`,
+    name: "Kirurgisk klinik Brabrand",
+    alternateName: "Cityvest Klinik",
+    description:
+      "Professionel omskæring af drengebørn i trygge rammer. Autoriserede speciallæger i City Vest, Brabrand ved Aarhus.",
+    url: siteUrl,
+    telephone: "+4520763516",
+    email: "info@cityvestklinik.dk",
+    priceRange: "kr.",
+    medicalSpecialty: "Surgical",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Gudrunsvej 7",
+      postalCode: "8220",
+      addressLocality: "Brabrand",
+      addressCountry: "DK",
+    },
+    areaServed: "DK",
+    availableService: {
+      "@type": "MedicalProcedure",
+      name: "Rituel drengeomskæring",
+      procedureType: "https://schema.org/PercutaneousProcedure",
+    },
   };
 }
 
 /**
- * generateJsonLd — convenience aggregator returning an array of schema.org
- * objects for a given page (WebPage + optional breadcrumbs). Site-wide
- * Organization/LocalBusiness schema lives in the root layout.
+ * Generate FAQPage JSON-LD for a set of question/answer pairs.
+ * FAQPage markup is heavily used by AI Overviews and answer engines to
+ * source direct answers, in addition to classic rich-result snippets.
  */
-export function generateJsonLd(opts: {
-  name: string;
-  description: string;
-  path: string;
-  breadcrumbs?: Array<{ name: string; path: string }>;
-}) {
-  const graph: Array<Record<string, unknown>> = [webPageJsonLd(opts)];
-  if (opts.breadcrumbs && opts.breadcrumbs.length > 0) {
-    graph.push(breadcrumbJsonLd(opts.breadcrumbs));
-  }
-  return graph;
+export function buildFaqJsonLd(
+  items: Array<{
+    q: string;
+    a?: string;
+    blocks?: Array<{ type: "p" | "ul"; text?: string; items?: string[] }>;
+  }>,
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a ?? flattenFaqBlocks(item.blocks ?? []),
+      },
+    })),
+  };
+}
+
+function flattenFaqBlocks(
+  blocks: Array<{ type: "p" | "ul"; text?: string; items?: string[] }>,
+): string {
+  return blocks
+    .map((block) => (block.type === "ul" ? (block.items ?? []).join(" ") : block.text))
+    .filter(Boolean)
+    .join(" ");
+}
+
+/** Strip HTML tags from a string (for use in meta descriptions). */
+export function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    .trim();
 }
