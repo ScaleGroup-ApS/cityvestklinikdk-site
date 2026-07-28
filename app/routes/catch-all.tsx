@@ -9,8 +9,12 @@ import { redirect } from "react-router";
 import type { Route } from "./+types/catch-all";
 import { LEGACY_REDIRECTS } from "~/lib/redirects";
 
-export function loader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url);
+// `url` (not `request.url`): React Router 8 passes the raw incoming request
+// through untouched, so on a client-side navigation `request.url` still carries
+// the framework's `/priser/_.data` suffix and `_routes` params — normalizing
+// that would 301 visitors to a literal `.data` path. `url` is the normalized
+// application location with those details stripped, trailing slash preserved.
+export function loader({ url }: Route.LoaderArgs) {
   const raw = url.pathname;
   const clean = raw.replace(/\/+$/, "") || "/";
 
