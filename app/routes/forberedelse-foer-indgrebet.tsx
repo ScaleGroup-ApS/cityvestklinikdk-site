@@ -16,23 +16,23 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 const CHECKLIST = [
   {
     title: "Tryllecreme",
-    body: "Smør tryllecreme på ca. 45-60 minutter før aftalen. Tryllecreme kan købes i håndkøb (fx Emla eller Tapin). Påfør et tykt lag rundt om penisroden og dæk med plaster.",
+    body: "Brugen af tryllecreme sikrer, at barnet ikke føler stikket fra kanylen under lokalbedøvelsen, men det kan stadig opleve en svien og en let spænding, når bedøvelsen sprøjtes ind under huden. Vi anbefaler, at I smører tryllecreme på ca. 45-60 minutter før jeres aftale. Tryllecreme kan købes på apoteket i håndkøb under navnene Emla og Tapin. Det fås både som creme, plaster og som en kombination af creme og plaster. Vi anbefaler at købe det som en kombination af creme og plaster. Påfør et tykt lag rundt om penisroden og dæk det til med det tilhørende plaster. Hvis I bruger creme uden det tilhørende plaster, kan I dække det med husholdningsfilm.",
   },
   {
     title: "Sukkervand",
-    body: "Til småbørn under 6 måneder anbefales sukkervand i sutteflaske. Blandingsforhold: 10 gram sukker i 100 ml forkogt vand.",
+    body: "Til småbørn under 6 måneder anbefaler vi, at I medbringer sukkervand i en sutteflaske. Sukkervand har en dokumenteret smertestillende og beroligende effekt, især til nyfødte, og kan bruges som supplement til lokalbedøvelse både under bedøvelse og under omskæringen. Bland 10 gram sukker i 100 ml forkogt vand for at lave sukkervandet.",
   },
   {
     title: "Modermælk/erstatning",
-    body: "Medbring modermælk eller modermælkserstatning, hvis jeres barn drikker fra flaske.",
+    body: "Hvis jeres barn drikker modermælk eller modermælkserstatning fra flaske, bedes I også medbringe dette.",
   },
   {
     title: "Sygesikringskort/CPR-nummer",
-    body: "Medbring barnets sygesikringskort. Hvis I endnu ikke har modtaget det, medbring barnets CPR-nummer.",
+    body: "Husk at medbringe barnets sygesikringskort, hvis I har dette. Hvis I endnu ikke har modtaget det, bedes I medbringe barnets CPR-nummer.",
   },
   {
-    title: "Bleer og tøj",
-    body: "Tag ekstra bleer og tøj med i tilfælde af uheld. Til større drenge anbefales løst tøj.",
+    title: "Bleer og tøj mm.",
+    body: "Tag ekstra bleer og tøj med til indgrebet i tilfælde af uheld. For store drenge anbefales løst tøj, f.eks. en lang traditionel kjortel.",
   },
 ];
 
@@ -100,6 +100,18 @@ export default function Forberedelse({ loaderData }: Route.ComponentProps) {
         {/* Timing callout */}
         <ContentSection bg="ivory">
           <div className="max-w-3xl">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: EASE }}
+              className="text-[17px] leading-[1.8] text-[color:var(--color-text-muted)] mb-10"
+            >
+              For at sikre et succesfuldt indgreb er det vigtigt, at jeres søn er sund og
+              rask. Hvis jeres barn lider af kendte sygdomme eller lidelser, bedes I
+              kontakte klinikken inden tidsbestilling.
+            </motion.p>
+
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -111,9 +123,26 @@ export default function Forberedelse({ loaderData }: Route.ComponentProps) {
                 Anbefalet alder: 2–12 uger
               </span>
               <p className="font-display italic font-light text-[clamp(1.5rem,3vw,2rem)] leading-[1.4] text-[color:var(--color-ink)]">
-                Vores erfaring viser, at det ofte er bedst at udføre omskæringen, når barnet
+                Vores erfaring viser, at det er bedst at udføre omskæringen, når barnet
                 er mellem 2-12 uger gammelt, hvis barnet ikke er født for tidligt og vejer
                 mindst 3 kg.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: EASE, delay: 0.1 }}
+              className="mt-10 space-y-5 text-[17px] leading-[1.8] text-[color:var(--color-text-muted)]"
+            >
+              <p>
+                Hvis I er i tvivl, bedes I kontakte os inden tidsbestilling. Når barnet er
+                ældre end 12 uger, er der risiko for, at han vil være utryg og urolig under
+                indgrebet, og helingstiden kan være længere. Der vil også være en større
+                risiko for en skjult penis på grund af øget fedtomfang, hvilket vil kræve, at
+                omskæringen udsættes til en senere alder. Hvis I har mistanke om, at jeres søn
+                har en skjult penis, bedes I kontakte klinikken.
               </p>
             </motion.div>
           </div>
@@ -195,8 +224,9 @@ export default function Forberedelse({ loaderData }: Route.ComponentProps) {
               transition={{ duration: 0.8, ease: EASE }}
             >
               <p className="text-[17px] leading-[1.8] text-[color:var(--color-text-muted)] mb-8">
-                Når I ankommer til klinikken, vil lægen informere jer om procedure, risici og
-                forholdsregler efter omskæringen.
+                Når I ankommer til klinikken, vil den læge, der udfører indgrebet, tage imod
+                jer og informere jer om proceduren, risiciene og de forholdsregler, der skal
+                tages efter omskæringen.
               </p>
               <div className="card-ivory p-8 rounded-[1.25rem] border-l-4 border-l-[color:var(--color-accent-warm)]">
                 <p className="font-display text-[1.25rem] font-light leading-[1.5] text-[color:var(--color-ink)]">
