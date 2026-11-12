@@ -1,5 +1,5 @@
 import { CONTACT_SPAM_ERROR, verifyContactSubmission } from '~/lib/contact-spam.server';
-import { data, Link, useActionData } from "react-router";
+import { data, Link, redirect, useActionData } from "react-router";
 import { Header } from "~/components/Header";
 import { Footer } from "~/components/Footer";
 import { SubpageHero } from "~/components/shared/SubpageHero";
@@ -15,19 +15,22 @@ export function meta() {
 }
 
 // Action-only route (#kontakt-form): the contact form on /kontakt posts here
-// via useFetcher. With JS, the fetcher intercepts the response and renders the
-// inline success/error message on the contact page itself — the component
-// below never mounts. Without JS, the browser does a full POST navigation here
-// and this component renders the result, so the flow still works
-// (progressive enhancement).
+// via useFetcher. On success the action redirects to the /tak-for-din-besked
+// confirmation page — the fetcher follows the redirect (JS) and a full POST
+// navigation follows it too (no-JS), so both land on the same thank-you page.
+// Errors return inline data instead, which the fetcher renders on the contact
+// page (JS) or the component below renders (no-JS) — progressive enhancement.
+const CONFIRMATION_PATH = "/tak-for-din-besked";
+
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
 
   // Honeypot: real visitors never fill this (it's visually hidden). A filled
   // value means a bot filled every field blindly — silently pretend success
-  // rather than surfacing an error that would teach it to adapt.
+  // (same redirect as a real submission) rather than surfacing an error that
+  // would teach it to adapt.
   if (String(formData.get("website") ?? "").trim() !== "") {
-    return { ok: true };
+    return redirect(CONFIRMATION_PATH);
   }
 
   const name = String(formData.get("fulde_navn") ?? "").trim();
@@ -69,11 +72,13 @@ export async function action({ request }: Route.ActionArgs) {
     return data({ ok: false, error: "Beskeden kunne ikke sendes. Prøv igen." }, { status: 502 });
   }
 
-  return { ok: true };
+  return redirect(CONFIRMATION_PATH);
 }
 
-// No-JS fallback page: only rendered on a full POST navigation here (JS
-// disabled). With JS, the fetcher on /kontakt handles the response instead.
+// No-JS fallback page: only rendered on a full POST navigation that returns an
+// error (JS disabled). A successful submission redirects to /tak-for-din-besked
+// instead, so this component never shows a success state. With JS, the fetcher
+// on /kontakt handles errors inline.
 export default function KontaktSend() {
   const result = useActionData<typeof action>();
   const siteName = "Kirurgisk klinik Brabrand";
@@ -85,12 +90,10 @@ export default function KontaktSend() {
       <main className="flex-1">
         <SubpageHero
           eyebrow="Kontakt"
-          headline={result?.ok ? "Tak for din besked." : "Beskeden kunne ikke sendes."}
+          headline="Beskeden kunne ikke sendes."
           body={
-            result?.ok
-              ? "Vi vender tilbage til dig hurtigst muligt."
-              : (result && "error" in result ? result.error : undefined) ??
-                "Der opstod en fejl. Prøv venligst igen."
+            (result && "error" in result ? result.error : undefined) ??
+            "Der opstod en fejl. Prøv venligst igen."
           }
         />
 
