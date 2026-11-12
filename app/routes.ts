@@ -20,6 +20,9 @@ export default [
   route("kontakt", "routes/kontakt.tsx"),
   route("kontakt-send", "routes/kontakt-send.tsx"),
 
+  // Same-origin ALTCHA challenge proxy (bypasses the upstream CORS allowlist)
+  route("altcha/:siteId/challenge", "routes/altcha.$siteId.challenge.tsx"),
+
   // Booking
   route("booking", "routes/booking.tsx"),
   route("tak-for-din-booking", "routes/tak-for-din-booking.tsx"),
