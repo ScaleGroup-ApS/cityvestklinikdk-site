@@ -1,4 +1,5 @@
 import { contactChallenge } from "~/lib/contact-spam.server";
+import { getSiteUrl } from "~/lib/seo";
 import {
   isRouteErrorResponse,
   Links,
@@ -145,6 +146,16 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   );
 }
 
-export function loader() {
-  return { contactChallenge: contactChallenge() };
+export function loader({ request }: Route.LoaderArgs) {
+  const challenge = contactChallenge();
+  // Route the ALTCHA challenge through our own origin so the browser never makes
+  // a cross-origin request to altcha.scaledev.dk (whose per-site allowlist still
+  // only has the staging origin). See routes/altcha.$siteId.challenge. Only the
+  // public challenge base changes; server-side siteverify is untouched.
+  if (challenge.provider === "altcha" && challenge.baseUrl) {
+    return {
+      contactChallenge: { ...challenge, baseUrl: `${getSiteUrl(request)}/altcha` },
+    };
+  }
+  return { contactChallenge: challenge };
 }
