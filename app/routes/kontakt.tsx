@@ -12,7 +12,7 @@ import { ContentSection } from "~/components/shared/ContentSection";
 import { AnimatedWords } from "~/components/motion/AnimatedWords";
 import { HandDrawnUnderline } from "~/components/motion/HandDrawnUnderline";
 import { MagneticButton } from "~/components/motion/MagneticButton";
-import { buildMeta, buildWebsiteJsonLd } from "~/lib/seo";
+import { buildMeta, buildWebsiteJsonLd, getSiteUrl } from "~/lib/seo";
 import type { action as kontaktSendAction } from "./kontakt-send";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -61,7 +61,7 @@ const CONTACT_TOPICS = [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const siteUrl = new URL(request.url).origin;
+  const siteUrl = getSiteUrl(request);
   return { siteUrl };
 }
 

@@ -5,6 +5,7 @@
  * The site is fully code-defined, so routes are enumerated here directly.
  * Paths match the live cityvestklinik.dk slugs (canonical, no trailing slash).
  */
+import { getSiteUrl } from "~/lib/seo";
 import type { Route } from "./+types/sitemap[.]xml";
 
 /** Public, indexable routes with sitemap priority. Keep in sync with app/routes.ts. */
@@ -25,7 +26,7 @@ const ROUTES: Array<{ path: string; priority: string; changefreq: string }> = [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const siteUrl = new URL(request.url).origin;
+  const siteUrl = getSiteUrl(request);
   const lastmod = new Date().toISOString().split("T")[0];
 
   const xml = [

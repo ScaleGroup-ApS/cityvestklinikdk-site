@@ -6,10 +6,11 @@
  * H1 name, a blockquote summary, then curated links with short descriptions.
  * Keep in sync with app/routes.ts and the sitemap.
  */
+import { getSiteUrl } from "~/lib/seo";
 import type { Route } from "./+types/llms[.]txt";
 
 export function loader({ request }: Route.LoaderArgs) {
-  const siteUrl = new URL(request.url).origin;
+  const siteUrl = getSiteUrl(request);
 
   const body = `# Kirurgisk klinik Brabrand (Cityvest Klinik)
 

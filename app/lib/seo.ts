@@ -3,6 +3,27 @@
 // Generates meta tags, Open Graph, JSON-LD structured data, and canonical URLs.
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Resolve the canonical site origin (e.g. "https://cityvestklinik.dk") for a request.
+ *
+ * In production the app runs behind a TLS-terminating proxy/CDN, so the origin
+ * server receives the request over plain HTTP and `new URL(request.url).origin`
+ * resolves to `http://…`. Emitting that in canonicals, og:url, JSON-LD @id, the
+ * sitemap and robots.txt made Google treat every URL as a non-canonical redirect
+ * (http → https), which is why the sitemap registered 0 pages in Search Console.
+ *
+ * Honour the standard forwarded headers set by the proxy so we emit the real
+ * external scheme and host. Falls back to the request URL when they're absent
+ * (e.g. local dev).
+ */
+export function getSiteUrl(request: Request): string {
+  const url = new URL(request.url);
+  const proto = request.headers.get("x-forwarded-proto")?.split(",")[0].trim();
+  const host = request.headers.get("x-forwarded-host")?.split(",")[0].trim();
+  const scheme = proto || url.protocol.replace(/:$/, "");
+  return `${scheme}://${host || url.host}`;
+}
+
 interface SeoOptions {
   title: string;
   description?: string;

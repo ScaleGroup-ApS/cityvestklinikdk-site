@@ -13,7 +13,7 @@ import { SubpageHero } from "~/components/shared/SubpageHero";
 import { ContentSection } from "~/components/shared/ContentSection";
 import { ReviewsSlider } from "~/components/ReviewsSlider";
 import { CtaBand } from "~/components/home/CtaBand";
-import { buildMeta, buildWebsiteJsonLd } from "~/lib/seo";
+import { buildMeta, buildWebsiteJsonLd, getSiteUrl } from "~/lib/seo";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const SITE_NAME = "Kirurgisk klinik Brabrand";
@@ -27,7 +27,7 @@ const FACTS: Array<{ label: string; value: string }> = [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const siteUrl = new URL(request.url).origin;
+  const siteUrl = getSiteUrl(request);
   return { siteUrl };
 }
 
