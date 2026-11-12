@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatedWords } from "~/components/motion/AnimatedWords";
 import { HandDrawnUnderline } from "~/components/motion/HandDrawnUnderline";
 import { GOOGLE_REVIEWS, GOOGLE_REVIEWS_META } from "~/lib/google-reviews";
+import { TRUSTPILOT_META, TRUSTPILOT_REVIEWS } from "~/lib/trustpilot-reviews";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -21,16 +22,35 @@ export type Review = {
   context?: string;
 };
 
-// Reviews for Kirurgisk klinik Brabrand, sourced from ~/lib/google-reviews.
-// (Update GOOGLE_REVIEWS / GOOGLE_REVIEWS_META there, or wire the live
-// Google Places integration in ~/lib/google-places.ts.)
-const REVIEWS: Review[] = GOOGLE_REVIEWS.map((rv) => ({
+// Reviews for Kirurgisk klinik Brabrand, combining Trustpilot (verbatim, from
+// ~/lib/trustpilot-reviews) and Google (~/lib/google-reviews — empty until the
+// live Google Places integration in ~/lib/google-places.ts is wired).
+const clampRating = (n: number) =>
+  Math.min(5, Math.max(1, Math.round(n))) as 1 | 2 | 3 | 4 | 5;
+
+const TRUSTPILOT: Review[] = TRUSTPILOT_REVIEWS.map((rv) => ({
+  source: "trustpilot" as const,
+  name: rv.name,
+  date: rv.date,
+  rating: clampRating(rv.rating),
+  quote: rv.quote,
+}));
+
+const GOOGLE: Review[] = GOOGLE_REVIEWS.map((rv) => ({
   source: "google" as const,
   name: rv.name,
   date: rv.date,
-  rating: Math.min(5, Math.max(1, Math.round(rv.rating))) as 1 | 2 | 3 | 4 | 5,
+  rating: clampRating(rv.rating),
   quote: rv.quote,
 }));
+
+// Interleave the two sources so Google and Trustpilot badges alternate.
+const REVIEWS: Review[] = Array.from(
+  { length: Math.max(TRUSTPILOT.length, GOOGLE.length) },
+  (_, i) => [TRUSTPILOT[i], GOOGLE[i]],
+)
+  .flat()
+  .filter(Boolean) as Review[];
 
 
 
@@ -122,8 +142,8 @@ export function ReviewsSlider({ reviews = REVIEWS }: { reviews?: Review[] }) {
               der har været hos os.
             </h2>
 
-            {/* Source meta */}
-            <div className="mt-10 max-w-sm">
+            {/* Source meta — Google + Trustpilot aggregates */}
+            <div className="mt-10 grid gap-3 max-w-sm">
               <a
                 href={GOOGLE_REVIEWS_META.writeReviewUrl}
                 target="_blank"
@@ -140,6 +160,25 @@ export function ReviewsSlider({ reviews = REVIEWS }: { reviews?: Review[] }) {
                   </div>
                   <p className="text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-text-muted)] mt-1">
                     {GOOGLE_REVIEWS_META.totalReviews} Google-anmeldelser
+                  </p>
+                </div>
+              </a>
+              <a
+                href={TRUSTPILOT_META.profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 rounded-xl border border-[color:var(--color-border)] bg-white p-5 transition-colors hover:border-[color:var(--color-border-strong)]"
+              >
+                <TrustpilotMark className="w-8 h-8 shrink-0" />
+                <div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-display text-3xl font-light text-[color:var(--color-ink)]">
+                      {TRUSTPILOT_META.averageRating.toFixed(1)}
+                    </span>
+                    <Stars rating={Math.round(TRUSTPILOT_META.averageRating)} />
+                  </div>
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-text-muted)] mt-1">
+                    {TRUSTPILOT_META.totalReviews} Trustpilot-anmeldelser
                   </p>
                 </div>
               </a>

@@ -208,7 +208,7 @@ export function HeroSection() {
               </span>
               <div>
                 <p className="text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-text-muted)]">Anbefales af forældre</p>
-                <p className="text-sm font-semibold text-[color:var(--color-ink)]">4.9 / 5 · 100+ anmeldelser</p>
+                <p className="text-sm font-semibold text-[color:var(--color-ink)]">4.9 / 5 · 90+ anmeldelser</p>
               </div>
             </motion.div>
           </motion.div>
