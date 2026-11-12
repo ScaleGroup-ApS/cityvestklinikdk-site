@@ -405,25 +405,16 @@ export default function KontaktOs({ loaderData }: Route.ComponentProps) {
                   </label>
                 </div>
 
-                {fetcher.data && (
+                {/* Success redirects to /tak-for-din-besked (see /kontakt-send),
+                    so only errors render inline here. */}
+                {fetcher.data && "error" in fetcher.data && (
                   <p
-                    role="status"
-                    className={`mt-6 flex items-start gap-2 text-[14px] ${
-                      fetcher.data.ok
-                        ? "text-[color:var(--color-ink)]"
-                        : "text-red-600"
-                    }`}
+                    role="alert"
+                    className="mt-6 flex items-start gap-2 text-[14px] text-red-600"
                   >
-                    {fetcher.data.ok && (
-                      <svg className="w-5 h-5 shrink-0 text-[color:var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    )}
                     <span>
-                      {fetcher.data.ok
-                        ? "Tak for din besked! Vi vender tilbage til dig hurtigst muligt."
-                        : ("error" in fetcher.data ? fetcher.data.error : undefined) ??
-                          "Der opstod en fejl. Prøv venligst igen."}
+                      {fetcher.data.error ??
+                        "Der opstod en fejl. Prøv venligst igen."}
                     </span>
                   </p>
                 )}

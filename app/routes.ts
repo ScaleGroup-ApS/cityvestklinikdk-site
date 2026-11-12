@@ -16,9 +16,10 @@ export default [
   route("priser", "routes/priser.tsx"),
   route("find-os", "routes/find-os.tsx"),
 
-  // Contact (form UI + action-only endpoint)
+  // Contact (form UI + action-only endpoint + confirmation page)
   route("kontakt", "routes/kontakt.tsx"),
   route("kontakt-send", "routes/kontakt-send.tsx"),
+  route("tak-for-din-besked", "routes/tak-for-din-besked.tsx"),
 
   // Same-origin ALTCHA challenge proxy (bypasses the upstream CORS allowlist)
   route("altcha/:siteId/challenge", "routes/altcha.$siteId.challenge.tsx"),
