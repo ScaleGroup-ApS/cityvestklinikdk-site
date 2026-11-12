@@ -83,38 +83,62 @@ export function buildMeta(opts: SeoOptions) {
 }
 
 /**
- * Generate MedicalClinic JSON-LD (site-wide entity/NAP data).
- * Used on every page so Google, the Knowledge Graph, and AI answer
- * engines (AI Overviews, Perplexity, ChatGPT search) can resolve a
+ * Site-wide entity / NAP JSON-LD for the clinic.
+ *
+ * The node is typed as MedicalClinic + LocalBusiness + Organization so that
+ * both schema.org consumers (which understand the type hierarchy) and simpler
+ * audit tools (which string-match on "@type") resolve it as an Organization
+ * and a LocalBusiness. Used on every page so Google, the Knowledge Graph, and
+ * AI answer engines (AI Overviews, Perplexity, ChatGPT search) can resolve a
  * single, consistent entity for the clinic.
  */
 export function buildWebsiteJsonLd(siteUrl: string) {
   return {
     "@context": "https://schema.org",
-    "@type": "MedicalClinic",
+    "@type": ["MedicalClinic", "LocalBusiness", "Organization"],
     "@id": `${siteUrl}/#organization`,
     name: "Kirurgisk klinik Brabrand",
     alternateName: "Cityvest Klinik",
     description:
       "Professionel omskæring af drengebørn i trygge rammer. Autoriserede speciallæger i City Vest, Brabrand ved Aarhus.",
     url: siteUrl,
+    logo: `${siteUrl}/images/logo_2.png`,
+    image: `${siteUrl}/images/klinik-forside.jpg`,
     telephone: "+4520763516",
     email: "info@cityvestklinik.dk",
     priceRange: "kr.",
+    currenciesAccepted: "DKK",
     medicalSpecialty: "Surgical",
     address: {
       "@type": "PostalAddress",
       streetAddress: "Gudrunsvej 7",
       postalCode: "8220",
       addressLocality: "Brabrand",
+      addressRegion: "Midtjylland",
       addressCountry: "DK",
     },
-    areaServed: "DK",
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: 56.1537733,
+      longitude: 10.1357437,
+    },
+    areaServed: { "@type": "Country", name: "Danmark" },
     availableService: {
       "@type": "MedicalProcedure",
       name: "Rituel drengeomskæring",
       procedureType: "https://schema.org/PercutaneousProcedure",
     },
+    // Aggregated from the Google and Trustpilot reviews shown on-page.
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.9",
+      bestRating: "5",
+      ratingCount: 91,
+    },
+    sameAs: [
+      "https://dk.trustpilot.com/review/cityvestklinik.dk",
+      "https://www.google.com/maps/place/Kirurgisk+Klinik+Brabrand",
+    ],
   };
 }
 

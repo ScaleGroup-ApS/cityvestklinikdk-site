@@ -13,6 +13,7 @@ export function loader({ request }: Route.LoaderArgs) {
     "Allow: /",
     "",
     `Sitemap: ${siteUrl}/sitemap.xml`,
+    `# LLM-friendly summary: ${siteUrl}/llms.txt`,
   ].join("\n");
 
   return new Response(robotsTxt, {

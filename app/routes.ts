@@ -4,6 +4,7 @@ export default [
   index("routes/index.tsx"),
   route("robots.txt", "routes/robots[.]txt.tsx"),
   route("sitemap.xml", "routes/sitemap[.]xml.tsx"),
+  route("llms.txt", "routes/llms[.]txt.tsx"),
 
   // Content pages — slugs match the live cityvestklinik.dk URLs
   route("om-omskaering", "routes/om-omskaering.tsx"),
