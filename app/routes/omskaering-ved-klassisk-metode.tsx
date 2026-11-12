@@ -15,7 +15,7 @@ import {
 } from "~/components/shared/InfoBlock";
 import { AnimatedWords } from "~/components/motion/AnimatedWords";
 import { HandDrawnUnderline } from "~/components/motion/HandDrawnUnderline";
-import { buildMeta, buildWebsiteJsonLd } from "~/lib/seo";
+import { buildMeta, buildWebsiteJsonLd, getSiteUrl } from "~/lib/seo";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -68,7 +68,7 @@ const HIDDEN_PENIS = [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const siteUrl = new URL(request.url).origin;
+  const siteUrl = getSiteUrl(request);
   return { siteUrl };
 }
 

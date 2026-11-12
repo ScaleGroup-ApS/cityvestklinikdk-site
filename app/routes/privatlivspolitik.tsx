@@ -5,7 +5,7 @@ import { JsonLd } from "~/components/JsonLd";
 import { SubpageHero } from "~/components/shared/SubpageHero";
 import { ContentSection } from "~/components/shared/ContentSection";
 import { AnimatedWords } from "~/components/motion/AnimatedWords";
-import { buildMeta, buildWebsiteJsonLd } from "~/lib/seo";
+import { buildMeta, buildWebsiteJsonLd, getSiteUrl } from "~/lib/seo";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -37,7 +37,7 @@ const SECTIONS = [
 ];
 
 export async function loader({ request }: { request: Request }) {
-  const siteUrl = new URL(request.url).origin;
+  const siteUrl = getSiteUrl(request);
   return { siteUrl };
 }
 

@@ -10,12 +10,12 @@ import { ReviewsSlider } from "~/components/ReviewsSlider";
 import { PricingHero } from "~/components/priser/PricingHero";
 import { PricingCards } from "~/components/priser/PricingCards";
 import { CtaBand } from "~/components/home/CtaBand";
-import { buildMeta, buildWebsiteJsonLd } from "~/lib/seo";
+import { buildMeta, buildWebsiteJsonLd, getSiteUrl } from "~/lib/seo";
 
 // ── Loader ────────────────────────────────────────────────────────────────────
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const siteUrl = new URL(request.url).origin;
+  const siteUrl = getSiteUrl(request);
   return { siteUrl };
 }
 

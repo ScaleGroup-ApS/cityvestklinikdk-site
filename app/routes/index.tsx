@@ -12,14 +12,14 @@ import { ProcessTimeline } from "~/components/home/ProcessTimeline";
 import { ReviewsSlider } from "~/components/ReviewsSlider";
 import { FaqTeaser } from "~/components/home/FaqTeaser";
 import { CtaBand } from "~/components/home/CtaBand";
-import { buildMeta, buildWebsiteJsonLd } from "~/lib/seo";
+import { buildMeta, buildWebsiteJsonLd, getSiteUrl } from "~/lib/seo";
 
 const SITE_NAME = "Kirurgisk klinik Brabrand";
 
 // ── Loader ───────────────────────────────────────────────────────────────────
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const siteUrl = new URL(request.url).origin;
+  const siteUrl = getSiteUrl(request);
   return { siteUrl };
 }
 

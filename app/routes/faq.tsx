@@ -10,13 +10,13 @@ import { ContentSection } from "~/components/shared/ContentSection";
 import { AccordionList } from "~/components/shared/AccordionList";
 import { AnimatedWords } from "~/components/motion/AnimatedWords";
 import { HandDrawnUnderline } from "~/components/motion/HandDrawnUnderline";
-import { buildMeta, buildWebsiteJsonLd, buildFaqJsonLd } from "~/lib/seo";
+import { buildMeta, buildWebsiteJsonLd, buildFaqJsonLd, getSiteUrl } from "~/lib/seo";
 import { FAQ_ITEMS } from "~/lib/faq";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const siteUrl = new URL(request.url).origin;
+  const siteUrl = getSiteUrl(request);
   return { siteUrl };
 }
 
