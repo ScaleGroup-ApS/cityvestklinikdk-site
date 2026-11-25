@@ -50,7 +50,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ...buildMeta({
       title: `Omskæring i Danmark | Professionelle procedurer hos ${siteName}`,
       description:
-        "Kirurgisk klinik Brabrand er specialiseret i omskæringsprocedurer i Danmark og tilbyder vores patienter en sikker og effektiv behandling udført af erfarne læger og sundhedsprofessionelle. Vi tilbyder flere forskellige procedurer.",
+        "Læs om omskæring i Danmark: metoder, sikkerhed og forløb. Kirurgisk klinik Brabrand udfører professionel omskæring med flere valg af procedure.",
       url: `${siteUrl}/om-omskaering`,
       siteName,
       siteUrl,

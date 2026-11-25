@@ -33,7 +33,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ...buildMeta({
       title: "Om Kirurgisk klinik Brabrand | Erfarne læger i trygge rammer",
       description:
-        "Kirurgisk klinik Brabrand er specialiseret i omskæringsprocedurer og tilbyder vores patienter en sikker og effektiv behandling udført af erfarne læger og sundhedsprofessionelle. Vores klinik er udstyret med den nyeste teknologi og er designet til at give vores patienter en behagelig oplevelse i trygge rammer.",
+        "Mød teamet bag Kirurgisk klinik Brabrand: erfarne speciallæger med speciale i omskæring, i moderne og trygge rammer i City Vest ved Aarhus.",
       url: `${siteUrl}/om-os`,
       siteName,
       siteUrl,

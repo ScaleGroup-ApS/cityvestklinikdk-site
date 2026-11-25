@@ -49,7 +49,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ...buildMeta({
       title: "Forberedelse inden omskæring | Sådan forbereder du dig på en omskæringsprocedure",
       description:
-        "Få tips og råd til, hvordan du bedst forbereder dig til en omskæringsprocedure på vores side om forberedelse inden omskæring. Hos Kirurgisk klinik Brabrand er vi specialiserede i omskæringsprocedurer og tilbyder vores patienter en sikker og effektiv behandling.",
+        "Sådan forbereder du dit barn og dig selv før omskæringen: bedøvelsescreme, påklædning og praktiske råd fra Kirurgisk klinik Brabrand.",
       url: `${siteUrl}/forberedelse-foer-indgrebet`,
       siteName,
       siteUrl,

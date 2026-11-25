@@ -43,7 +43,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ...buildMeta({
       title: `Book tid til omskæring hos ${siteName}`,
       description:
-        "Book en tid til en professionel omskæringsprocedure hos Kirurgisk klinik Brabrand. Vi tilbyder vores patienter en sikker og effektiv behandling, udført af erfarne læger og sundhedsprofessionelle. Kontakt os i dag for at bestille en tid og få svar på eventuelle spørgsmål, du måtte have om proceduren og dens fordele. Vi glæder os til at høre fra dig!",
+        "Book tid til omskæring hos Kirurgisk klinik Brabrand i City Vest ved Aarhus. Erfarne speciallæger, trygge rammer og hurtigt svar på din henvendelse.",
       url: `${siteUrl}/booking`,
       siteName,
       siteUrl,

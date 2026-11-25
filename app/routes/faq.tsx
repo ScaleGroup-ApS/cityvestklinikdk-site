@@ -28,7 +28,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ...buildMeta({
       title: "Omskærings-FAQ | Spørgsmål og svar om omskæring",
       description:
-        "Få svar på alle dine spørgsmål om omskæring på vores FAQ-side. Hos Kirurgisk klinik Brabrand er vi specialiserede i omskæringsprocedurer og har samlet en liste over de mest almindelige spørgsmål, som vores patienter stiller os. Lær mere om proceduren, dens fordele og ulemper, og hvordan man forbereder sig på operationen.",
+        "Svar på de mest stillede spørgsmål om omskæring: metoder, smertelindring, pris og forløb. Fra de autoriserede speciallæger hos Kirurgisk klinik Brabrand.",
       url: `${siteUrl}/faq`,
       siteName,
       siteUrl,
